@@ -2,11 +2,17 @@ package org.example.dungeonCrawler;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.example.dungeonCrawler.view.GameView;
 import org.example.dungeonCrawler.view.MainMenuView;
 
@@ -18,46 +24,54 @@ import java.util.Objects;
 public class Main extends Application {
 
     private Stage primaryStage;
-    private StackPane rootStack;
+    private StackPane viewContainer;
+
     private Parent currentView;
     private MainMenuView mainMenuView;
     private GameView gameView;
 
     private Pane dimmerOverlay;
 
+    private double xOffset = 0;
+    private double yOffset = 0;
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        primaryStage.initStyle(StageStyle.UNDECORATED);
 
-        rootStack = new StackPane();
-        Scene scene = new Scene(rootStack, 1400, 850);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        StackPane rootStack = new StackPane();
+        BorderPane mainLayout = new BorderPane();
+        HBox customTitleBar = createCustomTitleBar();
+        mainLayout.setTop(customTitleBar);
+
+        viewContainer = new StackPane();
+        mainLayout.setCenter(viewContainer);
 
         dimmerOverlay = new Pane();
         dimmerOverlay.setStyle("-fx-background-color: black;");
         dimmerOverlay.setOpacity(0.0);
         dimmerOverlay.setMouseTransparent(true);
-        rootStack.getChildren().add(dimmerOverlay);
 
-        primaryStage.setTitle("Wiedźmin: Lochy Novigradu");
+        rootStack.getChildren().addAll(mainLayout, dimmerOverlay);
+
+        Scene scene = new Scene(rootStack, 1400, 850);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+
+        try {
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/witcher_icon.png")));
+            primaryStage.getIcons().add(icon);
+        } catch (NullPointerException e) {
+            System.err.println("Error: Icon image not found.");
+        }
+
         primaryStage.show();
 
-        primaryStage.setOnCloseRequest(event -> {
-            if (mainMenuView != null) {
-                mainMenuView.disposeResources();
-            }
-            if (gameView != null) {
-                gameView.disposeResources();
-            }
-            Platform.exit();
-            System.exit(0);
-        });
-
         mainMenuView = new MainMenuView(this);
-        rootStack.getChildren().setAll(mainMenuView.getViewLayout(), dimmerOverlay);
         currentView = mainMenuView.getViewLayout();
+        viewContainer.getChildren().add(currentView);
+
         FadeTransition initialFadeIn = new FadeTransition(Duration.seconds(1.0), currentView);
         initialFadeIn.setFromValue(0.0);
         initialFadeIn.setToValue(1.0);
@@ -65,37 +79,62 @@ public class Main extends Application {
         mainMenuView.playMusic();
     }
 
+    private HBox createCustomTitleBar() {
+        HBox titleBar = new HBox();
+        titleBar.setAlignment(Pos.CENTER_LEFT);
+        titleBar.setPadding(new Insets(5, 10, 5, 20));
+        titleBar.getStyleClass().add("custom-title-bar");
+
+        Text title = new Text("WIEDŹMIN: LOCHY NOVIGRADU");
+        title.getStyleClass().add("custom-title-text");
+        Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button closeButton = new Button("X");
+        closeButton.getStyleClass().add("custom-close-button");
+        closeButton.setOnAction(e -> {
+            if (mainMenuView != null) mainMenuView.disposeResources();
+            if (gameView != null) gameView.disposeResources();
+            Platform.exit();
+            System.exit(0);
+        });
+
+        titleBar.getChildren().addAll(title, spacer, closeButton);
+
+        titleBar.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+        titleBar.setOnMouseDragged(event -> {
+            primaryStage.setX(event.getScreenX() - xOffset);
+            primaryStage.setY(event.getScreenY() - yOffset);
+        });
+        return titleBar;
+    }
+
     public void transitionToView(Parent newView) {
-        if (newView == null) {
-            return;
-        }
-        if (currentView == newView) {
+        if (newView == null || currentView == newView) {
             return;
         }
 
         dimmerOverlay.setMouseTransparent(false);
-
         FadeTransition fadeToBlack = new FadeTransition(Duration.seconds(0.5), dimmerOverlay);
         fadeToBlack.setFromValue(0.0);
         fadeToBlack.setToValue(1.0);
-        fadeToBlack.setOnFinished(event -> {
 
+        fadeToBlack.setOnFinished(event -> {
             if (currentView != null) {
-                if (mainMenuView != null && currentView == mainMenuView.getViewLayout()) {
-                    mainMenuView.disposeResources();
-                } else if (gameView != null && currentView == gameView.getViewLayout()) {
-                    gameView.disposeResources();
-                }
+                if (mainMenuView != null && currentView == mainMenuView.getViewLayout()) mainMenuView.disposeResources();
+                else if (gameView != null && currentView == gameView.getViewLayout()) gameView.disposeResources();
             }
 
-            rootStack.getChildren().remove(currentView);
-            rootStack.getChildren().add(0, newView);
-
+            viewContainer.getChildren().clear();
+            viewContainer.getChildren().add(newView);
             currentView = newView;
 
-            if (mainMenuView != null && currentView == mainMenuView.getViewLayout()) {
+            if (mainMenuView != null && currentView.equals(mainMenuView.getViewLayout())) {
                 mainMenuView.playMusic();
-            } else if (gameView != null && currentView == gameView.getViewLayout()) {
+            } else if (gameView != null && currentView.equals(gameView.getViewLayout())) {
                 gameView.playMusic();
                 gameView.setupKeyHandlers();
                 gameView.updateDisplay();
@@ -104,45 +143,23 @@ public class Main extends Application {
             FadeTransition fadeFromBlack = new FadeTransition(Duration.seconds(0.5), dimmerOverlay);
             fadeFromBlack.setFromValue(1.0);
             fadeFromBlack.setToValue(0.0);
-            fadeFromBlack.setOnFinished(e -> {
-                dimmerOverlay.setMouseTransparent(true);
-            });
+            fadeFromBlack.setOnFinished(e -> dimmerOverlay.setMouseTransparent(true));
             fadeFromBlack.play();
         });
         fadeToBlack.play();
     }
 
     public void showMainMenu() {
-        if (gameView != null) {
-            gameView.disposeResources();
-            gameView = null;
-        }
-
-        if (mainMenuView != null) {
-            mainMenuView.disposeResources();
-        }
         mainMenuView = new MainMenuView(this);
-
         transitionToView(mainMenuView.getViewLayout());
-        mainMenuView.playMusic();
     }
 
     public void startGame(String playerName, boolean showWelcomeDialog) {
-        if (gameView != null) {
-            gameView.disposeResources();
-            gameView = null;
-        }
-        if (mainMenuView != null) {
-            mainMenuView.disposeResources();
-        }
         gameView = new GameView(this, playerName);
-
         transitionToView(gameView.getViewLayout());
-        gameView.playMusic();
-        gameView.setupKeyHandlers();
-        gameView.updateDisplay();
+
         if (showWelcomeDialog){
-            gameView.showWelcomeDialog();
+            Platform.runLater(gameView::showWelcomeDialog);
         }
     }
 

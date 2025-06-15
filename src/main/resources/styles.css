@@ -1,15 +1,42 @@
 
 .root {
-    -fx-background-color: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
-    -fx-font-family: 'Cinzel', serif;
-    -fx-text-fill: #c9b037;
+    -fx-border-color: #ff9500;
+    -fx-border-width: 5px;
+    -fx-background-color: black;
 }
+
+.custom-title-bar {
+    -fx-background-color: #1a1a1a;
+    -fx-alignment: center-left;
+}
+
+.custom-title-text {
+    -fx-fill: #ff9500;
+    -fx-font-family: 'Cinzel';
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 0 10px;
+    -fx-font-weight: bold;
+}
+
+.custom-close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #A0A0A0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 10px;
+    -fx-cursor: hand;
+}
+
+.custom-close-button:hover {
+    -fx-background-color: #c00000;
+    -fx-text-fill: white;
+}
+
 .menu-root {
-    -fx-background-image: url("images/main_menu.png");
+    -fx-background-image: url('/images/main_menu.png');
     -fx-background-size: cover;
-    -fx-background-position: center center;
+    -fx-background-position: center;
     -fx-background-repeat: no-repeat;
-    -fx-font-family: 'Cinzel', serif;
 }
 
 
@@ -490,7 +517,7 @@
     -fx-font-family: 'Cinzel', serif;
     -fx-background-color: transparent;
     -fx-padding: 10px;
-    -fx-effect: dropshadow(gaussian, #000000, 2, 0.5, 1, 1); /* Delikatny cień dla lepszej czytelności */
+    -fx-effect: dropshadow(gaussian, #000000, 2, 0.5, 1, 1);
 }
 
 .legend-text {
@@ -558,4 +585,16 @@
     -fx-border-width: 3px;
     -fx-border-radius: 5px;
     -fx-padding: 5px;
+}
+
+.custom-frame-yellow {
+    -fx-border-color: #ff9500;
+    -fx-border-width: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.1, 0, 0);
+}
+
+.custom-frame-red {
+    -fx-border-color: #FF0000;
+    -fx-border-width: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.1, 0, 0);
 }
