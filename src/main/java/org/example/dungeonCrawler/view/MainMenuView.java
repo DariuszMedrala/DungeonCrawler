@@ -126,6 +126,7 @@ public class MainMenuView {
         BorderPane.setMargin(footer, new Insets(10, 0, 20, 30));
     }
 
+
     private void startNewGame() {
         Stage nameStage = new Stage();
         nameStage.setTitle("Nowa Gra - Wiedźmin: Lochy Novigradu");
@@ -143,21 +144,13 @@ public class MainMenuView {
         root.setPadding(new Insets(30));
 
         newGameFrame.setCenter(root);
-
-        ImageView guardImage;
-        guardImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/guard.jpg"))));
+        ImageView guardImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/guard.jpg"))));
         guardImage.setFitHeight(400);
         guardImage.setPreserveRatio(true);
-
-        StackPane imageContainer = new StackPane();
-        imageContainer.getChildren().add(guardImage);
+        StackPane imageContainer = new StackPane(guardImage);
         imageContainer.getStyleClass().add("image-frame");
-        imageContainer.setPrefWidth(Region.USE_COMPUTED_SIZE);
-
         VBox textAndInputVBox = new VBox(15);
         textAndInputVBox.setAlignment(Pos.CENTER);
-        textAndInputVBox.setPadding(new Insets(0, 0, 0, 0));
-
         VBox headerBox = new VBox(5);
         headerBox.setAlignment(Pos.CENTER);
         Text header1 = new Text("Przy wejściu do lochu spotykasz strażnika");
@@ -165,7 +158,6 @@ public class MainMenuView {
         Text header3 = new Text("co licho na ciebie łypie!");
         header3.getStyleClass().add("about-title");
         headerBox.getChildren().addAll(header1, header3);
-
         VBox questionBox = new VBox(5);
         questionBox.setAlignment(Pos.CENTER);
         questionBox.setPadding(new Insets(10, 0, 10, 0));
@@ -176,25 +168,21 @@ public class MainMenuView {
         Text label3 = new Text("Mów, jak cię zwą!");
         label3.getStyleClass().add("guard-text-bold");
         questionBox.getChildren().addAll(label1, label2, label3);
-
         TextField nameField = new TextField();
         nameField.setPromptText("Geralt");
         nameField.getStyleClass().add("name-field");
         nameField.setMaxWidth(300);
         VBox.setMargin(nameField, new Insets(30, 0, 0, 0));
-
         HBox buttonBoxDialog = new HBox(20);
         buttonBoxDialog.setAlignment(Pos.CENTER);
         Button startButton = new Button("⚔ PODAJ IMIĘ");
         VBox.setMargin(startButton, new Insets(30, 0, 20, 0));
         startButton.getStyleClass().add("dialog-button-primary");
         startButton.setDisable(true);
-
         Button cancelButton = new Button("👊 DAJ MU W ZĘBY");
         VBox.setMargin(cancelButton, new Insets(30, 0, 0, 0));
         cancelButton.getStyleClass().add("dialog-button-secondary");
         buttonBoxDialog.getChildren().addAll(startButton, cancelButton);
-
         nameField.textProperty().addListener((observable, oldValue, newValue) -> startButton.setDisable(newValue.trim().isEmpty()));
 
         startButton.setOnAction(e -> {
@@ -209,26 +197,10 @@ public class MainMenuView {
         cancelButton.setOnAction(e -> {
             playButtonClickSound();
             nameStage.close();
-        });
 
-        nameField.setOnAction(e -> {
-            if (!startButton.isDisabled()) {
-                playButtonClickSound();
-                startButton.fire();
-            }
-        });
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(100));
 
-        textAndInputVBox.getChildren().addAll(headerBox, questionBox, nameField, buttonBoxDialog);
-        createMainContentHBox(root, imageContainer, textAndInputVBox);
-
-        Scene scene = new Scene(newGameFrame, 1400, 500);
-        scene.setFill(Color.BLACK);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-        nameStage.setScene(scene);
-
-        nameStage.setOnHidden(event -> {
-            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(50));
-            delay.setOnFinished(e -> {
+            delay.setOnFinished(event -> {
                 Stage gameOverStage = new Stage();
                 gameOverStage.setTitle("Koniec Gry");
                 gameOverStage.initOwner(mainApp.getPrimaryStage());
@@ -243,64 +215,43 @@ public class MainMenuView {
                 gameOverRoot.setAlignment(Pos.CENTER);
                 gameOverRoot.getStyleClass().add("dialog-dark-background");
                 gameOverRoot.setPadding(new Insets(30));
-
                 gameOverFrame.setCenter(gameOverRoot);
-
-                ImageView gameOverImage;
-                gameOverImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/prison.png"))));
+                ImageView gameOverImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/prison.png"))));
                 gameOverImage.setFitHeight(400);
                 gameOverImage.setPreserveRatio(true);
-
-                StackPane gameOverImageContainer = new StackPane();
-                gameOverImageContainer.getChildren().add(gameOverImage);
+                StackPane gameOverImageContainer = new StackPane(gameOverImage);
                 gameOverImageContainer.getStyleClass().add("image-frame-red");
-                gameOverImageContainer.setPrefWidth(Region.USE_COMPUTED_SIZE);
-
                 VBox gameOverTextAndButtonsVBox = new VBox(15);
                 gameOverTextAndButtonsVBox.setAlignment(Pos.CENTER);
-
                 Text header = new Text("💀 ZŁA DECYZJA! 💀\n");
                 header.getStyleClass().add("game-over-text-bold");
-
-                VBox contentBoxGameOver = new VBox(8);
-                contentBoxGameOver.setAlignment(Pos.CENTER);
-                contentBoxGameOver.setMaxWidth(450);
-
-                Text line1 = new Text("No i co zrobiłeś, półgłówku?\n" +
-                        "Walnąłeś strażnika w mordę.\n" +
-                        "Teraz gnijesz w celi, gdzie szczury mają imiona.\n");
+                Text line1 = new Text("No i co zrobiłeś, półgłówku?\nWalnąłeś strażnika w mordę.\nTeraz gnijesz w celi, gdzie szczury mają imiona.\n");
                 line1.getStyleClass().add("game-over-text");
                 line1.setWrappingWidth(400);
-                Text line2 = new Text("Bez procesu. Bez kolacji. Bez litości.\n" +
-                        "KONIEC TEJ ŻAŁOSNEJ PRZYGODY!");
+                Text line2 = new Text("Bez procesu. Bez kolacji. Bez litości.\nKONIEC TEJ ŻAŁOSNEJ PRZYGODY!");
                 line2.getStyleClass().add("game-over-text-mid");
                 line2.setWrappingWidth(400);
-                contentBoxGameOver.getChildren().addAll(line1, line2);
-
+                VBox contentBoxGameOver = new VBox(8, line1, line2);
+                contentBoxGameOver.setAlignment(Pos.CENTER);
+                contentBoxGameOver.setMaxWidth(450);
                 Button closeButtonGameOver = new Button("☠ ZAMKNIJ");
                 closeButtonGameOver.getStyleClass().add("dialog-button-secondary");
                 closeButtonGameOver.setOnAction(ev -> {
                     playButtonClickSound();
                     gameOverStage.close();
                 });
-
-                gameOverTextAndButtonsVBox.getChildren().addAll(header, contentBoxGameOver, closeButtonGameOver);
                 VBox.setMargin(closeButtonGameOver, new Insets(50, 0, 0, 0));
+                gameOverTextAndButtonsVBox.getChildren().addAll(header, contentBoxGameOver, closeButtonGameOver);
                 createMainContentHBox(gameOverRoot, gameOverImageContainer, gameOverTextAndButtonsVBox);
-
                 Scene gameOverScene = new Scene(gameOverFrame, 850, 500);
                 gameOverScene.setFill(Color.BLACK);
                 gameOverScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-
                 gameOverStage.setScene(gameOverScene);
 
                 gameOverStage.setOnShown(event2 -> {
                     Stage primaryStage = mainApp.getPrimaryStage();
-                    double verticalOffset = 5.0;
-                    double newX = primaryStage.getX() + (primaryStage.getWidth() / 2) - (gameOverStage.getWidth() / 2);
-                    double newY = primaryStage.getY() + (primaryStage.getHeight() / 2) - (gameOverStage.getHeight() / 2) + verticalOffset;
-                    gameOverStage.setX(newX);
-                    gameOverStage.setY(newY);
+                    gameOverStage.setX(primaryStage.getX() + (primaryStage.getWidth() - gameOverStage.getWidth()) / 2);
+                    gameOverStage.setY(primaryStage.getY() + (primaryStage.getHeight() - gameOverStage.getHeight()) / 2);
 
                     gameOverFrame.setOpacity(0.0);
                     gameOverFrame.setTranslateY(20);
@@ -316,13 +267,24 @@ public class MainMenuView {
                     ParallelTransition parallelTransition = new ParallelTransition(fadeTransition, translateTransition);
                     parallelTransition.play();
                 });
-
                 gameOverStage.show();
             });
+
             delay.play();
         });
 
-
+        nameField.setOnAction(e -> {
+            if (!startButton.isDisabled()) {
+                playButtonClickSound();
+                startButton.fire();
+            }
+        });
+        textAndInputVBox.getChildren().addAll(headerBox, questionBox, nameField, buttonBoxDialog);
+        createMainContentHBox(root, imageContainer, textAndInputVBox);
+        Scene scene = new Scene(newGameFrame, 1400, 500);
+        scene.setFill(Color.BLACK);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        nameStage.setScene(scene);
         nameStage.setOnShown(e -> {
             Stage primaryStage = mainApp.getPrimaryStage();
             double verticalOffset = 5.0;
@@ -330,22 +292,17 @@ public class MainMenuView {
             double newY = primaryStage.getY() + (primaryStage.getHeight() / 2) - (nameStage.getHeight() / 2) + verticalOffset;
             nameStage.setX(newX);
             nameStage.setY(newY);
-
             newGameFrame.setOpacity(0.0);
             newGameFrame.setTranslateY(20);
-
             FadeTransition fadeTransition = new FadeTransition(Duration.millis(400), newGameFrame);
             fadeTransition.setFromValue(0.0);
             fadeTransition.setToValue(1.0);
-
             TranslateTransition translateTransition = new TranslateTransition(Duration.millis(400), newGameFrame);
             translateTransition.setFromY(20);
             translateTransition.setToY(0);
-
             ParallelTransition parallelTransition = new ParallelTransition(fadeTransition, translateTransition);
             parallelTransition.play();
         });
-
         nameStage.show();
         nameField.requestFocus();
     }

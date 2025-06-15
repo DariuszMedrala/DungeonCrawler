@@ -3,6 +3,7 @@
     -fx-border-color: #ff9500;
     -fx-border-width: 5px;
     -fx-background-color: black;
+    -fx-border-radius: 5px;
 }
 
 .custom-title-bar {
