@@ -1,0 +1,561 @@
+
+.root {
+    -fx-background-color: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-fill: #c9b037;
+}
+.menu-root {
+    -fx-background-image: url("images/main_menu.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+
+.dialog-dark-background {
+    -fx-background-color: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-fill: #c9b037;
+}
+
+.menu-title-main {
+    -fx-font-size: 64px;
+    -fx-font-weight: bold;
+    -fx-fill: linear-gradient(to bottom, #ffd700, #c9b037);
+    -fx-effect: dropshadow(gaussian, #8b0000, 8, 0.9, 3, 3);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.menu-title-sub {
+    -fx-font-size: 36px;
+    -fx-font-weight: normal;
+    -fx-fill: #daa520;
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.7, 2, 2);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.custom-dialog-background {
+    -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+    -fx-font-family: 'Cinzel', serif;
+    -fx-padding: 25px;
+    -fx-spacing: 20px;
+    -fx-alignment: center;
+}
+
+.custom-dialog-background .label {
+    -fx-text-fill: #daa520;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.menu-button {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #654321);
+    -fx-text-fill: #ffd700;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-radius: 10px;
+    -fx-border-color: #c9b037;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, #000000, 6, 0.8, 3, 3);
+    -fx-cursor: hand;
+    -fx-min-height: 60px;
+    -fx-padding: 10px 30px;
+}
+
+.menu-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #a0522d, #8b4513);
+    -fx-text-fill: #ffed4e;
+    -fx-effect: dropshadow(gaussian, #ffd700, 6, 0.4, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.menu-button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.menu-footer {
+    -fx-font-size: 14px;
+    -fx-fill: #daa520;
+    -fx-font-style: italic;
+}
+
+.dialog-header {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.7, 2, 2);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.dialog-header-small {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, #000000, 3, 0.6, 1, 1);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.dialog-label-bold {
+    -fx-text-fill: #ffd700;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-effect: dropshadow(gaussian, #000000, 2, 0.5, 1, 1);
+}
+
+.game-over-dialog .dialog-pane {
+    -fx-background-color: linear-gradient(to bottom, #4a0000, #2d0000);
+    -fx-border-color: #8b0000;
+    -fx-border-width: 3px;
+}
+
+.game-over-dialog .dialog-pane .header-panel {
+    -fx-background-color: #2d0000;
+}
+
+.game-over-dialog .dialog-pane .content.label {
+    -fx-text-fill: #ff6666;
+    -fx-font-size: 8px;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.game-over-header {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-fill: #ff4444;
+    -fx-effect: dropshadow(gaussian, #8b0000, 6, 0.8, 3, 3);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.game-over-text {
+    -fx-font-size: 18px;
+    -fx-fill: #ffaaaa;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-alignment: center;
+}
+
+.game-over-text-bold {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-fill: #ff6666;
+    -fx-text-fill: #ff6666;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-effect: dropshadow(gaussian, #8b0000, 2, 0.5, 1, 1);
+
+}
+.game-over-text-mid {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-fill: #ff6666;
+    -fx-text-fill: #ff6666;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-effect: dropshadow(gaussian, #8b0000, 2, 0.5, 1, 1);
+    -fx-text-alignment: center;
+}
+.custom-dialog-background .label.game-over-text-bold {
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ff6666;
+    -fx-effect: dropshadow(gaussian, #8b0000, 2, 0.5, 1, 1);
+}
+
+.game-over-final {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-fill: #ff0000;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.8, 2, 2);
+    -fx-text-alignment: center;
+}
+
+.dialog-button-primary {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #654321);
+    -fx-text-fill: #ffd700;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-radius: 8px;
+    -fx-border-color: #c9b037;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.6, 2, 2);
+    -fx-cursor: hand;
+    -fx-min-width: 150px;
+    -fx-min-height: 45px;
+    -fx-padding: 8px 20px;
+}
+
+.dialog-button-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #a0522d, #8b4513);
+    -fx-text-fill: #ffed4e;
+    -fx-effect: dropshadow(gaussian, #ffd700, 5, 0.3, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.dialog-button-secondary {
+    -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
+    -fx-text-fill: #c9b037;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-radius: 8px;
+    -fx-border-color: #666666;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.6, 2, 2);
+    -fx-cursor: hand;
+    -fx-min-width: 150px;
+    -fx-min-height: 45px;
+    -fx-padding: 8px 20px;
+}
+
+.dialog-button-secondary:hover {
+    -fx-background-color: linear-gradient(to bottom, #5a5a5a, #3a3a3a);
+    -fx-text-fill: #daa520;
+    -fx-effect: dropshadow(gaussian, #666666, 4, 0.3, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.about-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, #8b0000, 4, 0.8, 2, 2);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.about-content {
+    -fx-font-size: 16px;
+    -fx-fill: #daa520;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-alignment: center;
+}
+
+.name-dialog .dialog-pane {
+    -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+    -fx-border-color: #8b4513;
+    -fx-border-width: 3px;
+}
+
+.name-dialog .dialog-pane .header-panel {
+    -fx-background-color: #1a1a1a;
+}
+
+.name-dialog .dialog-pane .content {
+    -fx-background-color: transparent;
+}
+
+.name-field {
+    -fx-background-color: #3a3a3a;
+    -fx-text-fill: #ffd700;
+    -fx-font-size: 16px;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-border-color: #8b4513;
+    -fx-border-width: 2px;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-prompt-text-fill: #999999;
+    -fx-padding: 8px 12px;
+}
+
+.name-field:focused {
+    -fx-border-color: #ffd700;
+    -fx-effect: dropshadow(gaussian, #ffd700, 3, 0.2, 0, 0);
+}
+
+.dialog-label {
+    -fx-text-fill: #daa520;
+    -fx-font-size: 16px;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.about-dialog .dialog-pane {
+    -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+    -fx-border-color: #8b4513;
+    -fx-border-width: 3px;
+}
+
+.about-dialog .dialog-pane .header-panel {
+    -fx-background-color: #1a1a1a;
+}
+
+.about-dialog .dialog-pane .content {
+    -fx-background-color: transparent;
+}
+
+.guard-text {
+    -fx-fill: #daa520;
+    -fx-font-size: 16px;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-style: italic;
+}
+
+.guard-text-bold {
+    -fx-fill: #ffd700;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-style: italic;
+    -fx-effect: dropshadow(gaussian, #000000, 2, 0.5, 1, 1);
+}
+
+.title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #ffd700, #ffed4e);
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.8, 2, 2);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.panel-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #c9b037;
+    -fx-effect: dropshadow(gaussian, #000000, 2, 0.6, 1, 1);
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #daa520;
+    -fx-effect: dropshadow(gaussian, #000000, 1, 0.5, 1, 1);
+}
+
+.subsection-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #c9b037;
+}
+
+.map-scroll {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #8b4513;
+    -fx-border-width: 3px;
+    -fx-border-style: solid;
+    -fx-effect: innershadow(gaussian, #000000, 10, 0.7, 0, 0);
+}
+
+.map-grid {
+    -fx-background-color: #1a1a1a;
+}
+
+.side-panel {
+    -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+    -fx-border-color: #8b4513;
+    -fx-border-width: 3px;
+    -fx-border-style: solid;
+    -fx-effect: dropshadow(gaussian, #000000, 12, 0.8, -4, 4);
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+}
+
+.section {
+    -fx-background-color: rgba(42, 42, 42, 0.7);
+    -fx-background-radius: 6px;
+    -fx-padding: 12px;
+    -fx-border-color: rgba(139, 69, 19, 0.5);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+}
+
+.status-effects {
+    -fx-font-size: 13px;
+    -fx-text-fill: #ff9500;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-color: transparent;
+    -fx-padding: 0px 8px;
+    -fx-font-weight: bold;
+}
+
+
+.movement-button {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #654321);
+    -fx-text-fill: #ffd700;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4px;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-effect: dropshadow(gaussian, #000000, 3, 0.6, 1, 1);
+    -fx-cursor: hand;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+}
+
+.movement-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #a0522d, #8b4513);
+    -fx-text-fill: #ffed4e;
+    -fx-effect: dropshadow(gaussian, #ffd700, 4, 0.8, 0, 0);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.action-button {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #654321);
+    -fx-text-fill: #ffd700;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-radius: 6px;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-effect: dropshadow(gaussian, #000000, 4, 0.6, 2, 2);
+    -fx-cursor: hand;
+    -fx-min-width: 200px;
+    -fx-min-height: 35px;
+}
+
+.action-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #a0522d, #8b4513);
+    -fx-text-fill: #ffed4e;
+    -fx-effect: dropshadow(gaussian, #ffd700, 4, 0.3, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.combat-button {
+    -fx-background-color: linear-gradient(to bottom, #8b0000, #5a0000);
+    -fx-text-fill: #ffcccb;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-radius: 8px;
+    -fx-border-color: #ff4444;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, #8b0000, 6, 0.8, 2, 2);
+    -fx-cursor: hand;
+    -fx-min-width: 180px;
+    -fx-min-height: 40px;
+}
+
+.combat-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #a52a2a, #8b0000);
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, #ff0000, 5, 0.3, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.combat-section {
+    -fx-background-color: linear-gradient(to bottom, #4a0000, #2d0000);
+    -fx-border-color: #ff4444;
+    -fx-border-width: 3px;
+    -fx-border-style: solid;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, #ff0000, 15, 1.0, 0, 0);
+    -fx-padding: 15px;
+}
+
+.combat-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ff4444;
+    -fx-font-family: 'Creepster', cursive;
+    -fx-effect: dropshadow(gaussian, #8b0000, 4, 1.0, 2, 2);
+}
+
+.status {
+    -fx-font-size: 15px;
+    -fx-text-fill: #daa520;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-color: transparent;
+    -fx-padding: 12px;
+}
+
+.stats {
+    -fx-font-size: 14px;
+    -fx-text-fill: #c9b037;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.inventory {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffed4e;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+    -fx-effect: dropshadow(gaussian, #000000, 2, 0.5, 1, 1); /* Delikatny cień dla lepszej czytelności */
+}
+
+.legend-text {
+    -fx-font-size: 15px;
+    -fx-text-fill: #c9b037;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #999999;
+    -fx-font-style: italic;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.scroll-bar {
+    -fx-background-color: #2a2a2a;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #8b4513;
+    -fx-border-width: 1px;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: linear-gradient(to bottom, #8b4513, #654321);
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #a0522d, #8b4513);
+}
+
+.scroll-pane {
+    -fx-background-color: #1a1a1a;
+}
+.dialog-content-section {
+    -fx-background-color: rgba(40, 40, 40, 0.7);
+    -fx-border-color: #555;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 5, 0.0, 0, 2);
+}
+.image-frame {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: FF9100FF;
+    -fx-border-width: 3px;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: #1a1a1a;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: #1a1a1a;
+}
+
+.image-frame-red {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: #FF0000;
+    -fx-border-width: 3px;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+}
