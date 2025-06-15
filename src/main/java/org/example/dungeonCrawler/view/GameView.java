@@ -8,6 +8,7 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.*;
+import javafx.stage.StageStyle;
 import org.example.dungeonCrawler.controller.GameController;
 import org.example.dungeonCrawler.model.*;
 import org.example.dungeonCrawler.model.items.*;
@@ -139,6 +140,8 @@ public class GameView {
         welcomeStage.initOwner(mainApp.getPrimaryStage());
         welcomeStage.setTitle("Witaj w Lochach Novigradu!");
         welcomeStage.setResizable(false);
+        welcomeStage.initStyle(StageStyle.UNDECORATED);
+        welcomeStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -210,6 +213,13 @@ public class GameView {
         welcomeScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
         welcomeStage.setScene(welcomeScene);
+
+        welcomeStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            welcomeStage.setX(primaryStage.getX() + (primaryStage.getWidth() - welcomeStage.getWidth()) / 2);
+            welcomeStage.setY(primaryStage.getY() + (primaryStage.getHeight() - welcomeStage.getHeight()) / 2);
+        });
+
         welcomeStage.showAndWait();
     }
 
@@ -387,6 +397,8 @@ public class GameView {
         eventStage.setTitle("Tajemnicze Miejsce");
         eventStage.setResizable(false);
         eventStage.setOnCloseRequest(Event::consume);
+        eventStage.initStyle(StageStyle.UNDECORATED);
+        eventStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -472,6 +484,13 @@ public class GameView {
         eventScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         eventStage.setScene(eventScene);
         eventStage.sizeToScene();
+
+        eventStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            eventStage.setX(primaryStage.getX() + (primaryStage.getWidth() - eventStage.getWidth()) / 2);
+            eventStage.setY(primaryStage.getY() + (primaryStage.getHeight() - eventStage.getHeight()) / 2);
+        });
+
         eventStage.showAndWait();
     }
 
@@ -586,6 +605,8 @@ public class GameView {
             backpackStage.initOwner(mainApp.getPrimaryStage());
             backpackStage.setTitle("Plecak Wiedźmina");
             backpackStage.setResizable(false);
+            backpackStage.initStyle(StageStyle.UNDECORATED);
+            backpackStage.initModality(Modality.APPLICATION_MODAL);
 
             VBox root = new VBox(15);
             root.getStyleClass().add("custom-dialog-background");
@@ -613,12 +634,20 @@ public class GameView {
             });
 
             root.getChildren().addAll(title, inventoryViewSection, closeButton);
-            Scene backpackScene = new Scene(root, 700, 850);
+            Scene backpackScene = new Scene(root, 800, 750);
             backpackScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
             backpackStage.setScene(backpackScene);
         }
 
         updateBackpackContent();
+
+        backpackStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+
+            backpackStage.setX(primaryStage.getX() + (mapScrollPane.getWidth() - backpackStage.getWidth()) / 2);
+            backpackStage.setY(primaryStage.getY() + 70);
+        });
+
         backpackStage.showAndWait();
     }
 
@@ -704,6 +733,8 @@ public class GameView {
         discoveryStage.initOwner(mainApp.getPrimaryStage());
         discoveryStage.setTitle("Odkryto Przedmiot!");
         discoveryStage.setResizable(false);
+        discoveryStage.initStyle(StageStyle.UNDECORATED);
+        discoveryStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -800,6 +831,13 @@ public class GameView {
         discoveryScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         discoveryStage.setScene(discoveryScene);
         discoveryStage.sizeToScene();
+
+        discoveryStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            discoveryStage.setX(primaryStage.getX() + (primaryStage.getWidth() - discoveryStage.getWidth()) / 2);
+            discoveryStage.setY(primaryStage.getY() + (primaryStage.getHeight() - discoveryStage.getHeight()) / 2);
+        });
+
         discoveryStage.showAndWait();
         return itemWasPickedUp.get();
     }
@@ -810,6 +848,8 @@ public class GameView {
         treasureDiscoveryStage.initOwner(mainApp.getPrimaryStage());
         treasureDiscoveryStage.setTitle("Komora Skarbca!");
         treasureDiscoveryStage.setResizable(false);
+        treasureDiscoveryStage.initStyle(StageStyle.UNDECORATED);
+        treasureDiscoveryStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -916,6 +956,13 @@ public class GameView {
         
         treasureDiscoveryStage.setScene(discoveryScene);
         treasureDiscoveryStage.sizeToScene();
+
+        treasureDiscoveryStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            treasureDiscoveryStage.setX(primaryStage.getX() + (primaryStage.getWidth() - treasureDiscoveryStage.getWidth()) / 2);
+            treasureDiscoveryStage.setY(primaryStage.getY() + (primaryStage.getHeight() - treasureDiscoveryStage.getHeight()) / 2);
+        });
+
         treasureDiscoveryStage.showAndWait();
     }
 
@@ -925,6 +972,8 @@ public class GameView {
         treasureFoundStage.initOwner(parentStage);
         treasureFoundStage.setTitle("Skarb Znaleziony!");
         treasureFoundStage.setResizable(false);
+        treasureFoundStage.initStyle(StageStyle.UNDECORATED);
+        treasureFoundStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -988,6 +1037,13 @@ public class GameView {
         }
         treasureFoundStage.setScene(scene);
         treasureFoundStage.sizeToScene();
+
+        treasureFoundStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            treasureFoundStage.setX(primaryStage.getX() + (primaryStage.getWidth() - treasureFoundStage.getWidth()) / 2);
+            treasureFoundStage.setY(primaryStage.getY() + (primaryStage.getHeight() - treasureFoundStage.getHeight()) / 2);
+        });
+
         treasureFoundStage.showAndWait();
     }
 
@@ -998,6 +1054,8 @@ public class GameView {
         confirmDropStage.initOwner(backpackOwnerStage);
         confirmDropStage.setTitle("Wyrzuć Przedmiot?");
         confirmDropStage.setResizable(false);
+        confirmDropStage.initStyle(StageStyle.UNDECORATED);
+        confirmDropStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(15);
         root.setPadding(new Insets(25));
@@ -1044,6 +1102,13 @@ public class GameView {
        
         confirmDropStage.setScene(confirmScene);
         confirmDropStage.sizeToScene();
+
+        confirmDropStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            confirmDropStage.setX(primaryStage.getX() + (primaryStage.getWidth() - confirmDropStage.getWidth()) / 2);
+            confirmDropStage.setY(primaryStage.getY() + (primaryStage.getHeight() - confirmDropStage.getHeight()) / 2);
+        });
+
         confirmDropStage.showAndWait();
     }
 
@@ -1053,6 +1118,8 @@ public class GameView {
         levelUpStage.initOwner(mainApp.getPrimaryStage());
         levelUpStage.setTitle("Awans na Poziom!");
         levelUpStage.setResizable(false);
+        levelUpStage.initStyle(StageStyle.UNDECORATED);
+        levelUpStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -1119,6 +1186,13 @@ public class GameView {
       
         levelUpStage.setScene(scene);
         levelUpStage.sizeToScene();
+
+        levelUpStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            levelUpStage.setX(primaryStage.getX() + (primaryStage.getWidth() - levelUpStage.getWidth()) / 2);
+            levelUpStage.setY(primaryStage.getY() + (primaryStage.getHeight() - levelUpStage.getHeight()) / 2);
+        });
+
         levelUpStage.showAndWait();
     }
 
@@ -1129,6 +1203,8 @@ public class GameView {
         popupStage.initOwner(mainApp.getPrimaryStage());
         popupStage.setResizable(false);
         popupStage.setTitle("Szczegóły Przedmiotu");
+        popupStage.initStyle(StageStyle.UNDECORATED);
+        popupStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox popupLayout = new VBox(10);
         popupLayout.setPadding(new Insets(15));
@@ -1202,6 +1278,8 @@ public class GameView {
         menuStage.initModality(Modality.WINDOW_MODAL);
         menuStage.initOwner(mainApp.getPrimaryStage());
         menuStage.setTitle("Menu Gry");
+        menuStage.initStyle(StageStyle.UNDECORATED);
+        menuStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox menuLayout = new VBox(15);
         menuLayout.setPadding(new Insets(20));
@@ -1249,6 +1327,13 @@ public class GameView {
             System.err.println("Nie można załadować stylów CSS dla okna menu: " + e.getMessage());
         }
         menuStage.setScene(menuDialogScene);
+
+        menuStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            menuStage.setX(primaryStage.getX() + (primaryStage.getWidth() - menuStage.getWidth()) / 2);
+            menuStage.setY(primaryStage.getY() + (primaryStage.getHeight() - menuStage.getHeight()) / 2);
+        });
+
         menuStage.showAndWait();
     }
 
@@ -1258,6 +1343,8 @@ public class GameView {
         confirmNewGameStage.initOwner(menuStageToClose);
         confirmNewGameStage.setTitle("Nowa Gra?");
         confirmNewGameStage.setResizable(false);
+        confirmNewGameStage.initStyle(StageStyle.UNDECORATED);
+        confirmNewGameStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(15);
         root.setPadding(new Insets(25));
@@ -1303,6 +1390,13 @@ public class GameView {
        
         confirmNewGameStage.setScene(confirmScene);
         confirmNewGameStage.sizeToScene();
+
+        confirmNewGameStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            confirmNewGameStage.setX(primaryStage.getX() + (primaryStage.getWidth() - confirmNewGameStage.getWidth()) / 2);
+            confirmNewGameStage.setY(primaryStage.getY() + (primaryStage.getHeight() - confirmNewGameStage.getHeight()) / 2);
+        });
+
         confirmNewGameStage.showAndWait();
     }
 
@@ -1313,6 +1407,8 @@ public class GameView {
         legendStage.initOwner(mainApp.getPrimaryStage());
         legendStage.setTitle("Legenda Mapy");
         legendStage.setResizable(false);
+        legendStage.initStyle(StageStyle.UNDECORATED);
+        legendStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(8);
         root.getStyleClass().add("custom-dialog-background");
@@ -1371,6 +1467,13 @@ public class GameView {
         Scene legendScene = new Scene(root, 480, 500);
         legendScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         legendStage.setScene(legendScene);
+
+        legendStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            legendStage.setX(primaryStage.getX() + (primaryStage.getWidth() - legendStage.getWidth()) / 2);
+            legendStage.setY(primaryStage.getY() + (primaryStage.getHeight() - legendStage.getHeight()) / 2);
+        });
+
         legendStage.showAndWait();
     }
 
@@ -1381,6 +1484,8 @@ public class GameView {
         confirmStage.initOwner(mainApp.getPrimaryStage());
         confirmStage.setTitle("Potwierdzenie Wyjścia");
         confirmStage.setResizable(false);
+        confirmStage.initStyle(StageStyle.UNDECORATED);
+        confirmStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(15);
         root.setPadding(new Insets(25));
@@ -1422,6 +1527,13 @@ public class GameView {
         confirmScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         confirmStage.setScene(confirmScene);
         confirmStage.sizeToScene();
+
+        confirmStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            confirmStage.setX(primaryStage.getX() + (primaryStage.getWidth() - confirmStage.getWidth()) / 2);
+            confirmStage.setY(primaryStage.getY() + (primaryStage.getHeight() - confirmStage.getHeight()) / 2);
+        });
+
         confirmStage.showAndWait();
     }
     
@@ -1449,6 +1561,8 @@ public class GameView {
         combatChoiceStage.setResizable(false);
         combatChoiceStage.setTitle("Walka z " + enemy.getName().toUpperCase() + "!");
         combatChoiceStage.setOnCloseRequest(Event::consume);
+        combatChoiceStage.initStyle(StageStyle.UNDECORATED);
+        combatChoiceStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -1541,6 +1655,13 @@ public class GameView {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
         combatChoiceStage.setScene(scene);
+
+        combatChoiceStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            combatChoiceStage.setX(primaryStage.getX() + (primaryStage.getWidth() - combatChoiceStage.getWidth()) / 2);
+            combatChoiceStage.setY(primaryStage.getY() + (primaryStage.getHeight() - combatChoiceStage.getHeight()) / 2);
+        });
+
         combatChoiceStage.showAndWait();
     }
 
@@ -1552,6 +1673,8 @@ public class GameView {
         combatResultStage.setTitle("Wynik walki");
         combatResultStage.setResizable(false);
         combatResultStage.setOnCloseRequest(Event::consume);
+        combatResultStage.initStyle(StageStyle.UNDECORATED);
+        combatResultStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -1641,6 +1764,13 @@ public class GameView {
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         combatResultStage.setScene(scene);
+
+        combatResultStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            combatResultStage.setX(primaryStage.getX() + (primaryStage.getWidth() - combatResultStage.getWidth()) / 2);
+            combatResultStage.setY(primaryStage.getY() + (primaryStage.getHeight() - combatResultStage.getHeight()) / 2);
+        });
+
         combatResultStage.showAndWait();
 
     }
@@ -1804,6 +1934,8 @@ public class GameView {
         endGameStage.setTitle(title);
         endGameStage.setResizable(false);
         endGameStage.setOnCloseRequest(Event::consume);
+        endGameStage.initStyle(StageStyle.UNDECORATED);
+        endGameStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
@@ -1874,6 +2006,13 @@ public class GameView {
         
         endGameStage.setScene(scene);
         endGameStage.sizeToScene();
+
+        endGameStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            endGameStage.setX(primaryStage.getX() + (primaryStage.getWidth() - endGameStage.getWidth()) / 2);
+            endGameStage.setY(primaryStage.getY() + (primaryStage.getHeight() - endGameStage.getHeight()) / 2);
+        });
+
         endGameStage.showAndWait();
     }
 
@@ -1938,6 +2077,8 @@ public class GameView {
         helpStage.initOwner(mainApp.getPrimaryStage());
         helpStage.setTitle("Pomoc - Wiedźmin: Lochy Novigradu");
         helpStage.setResizable(false);
+        helpStage.initStyle(StageStyle.UNDECORATED);
+        helpStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
         root.setPadding(new Insets(20));
@@ -1999,6 +2140,13 @@ public class GameView {
 
         helpStage.setScene(helpScene);
         helpStage.sizeToScene();
+
+        helpStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            helpStage.setX(primaryStage.getX() + (primaryStage.getWidth() - helpStage.getWidth()) / 2);
+            helpStage.setY(primaryStage.getY() + (primaryStage.getHeight() - helpStage.getHeight()) / 2);
+        });
+
         helpStage.showAndWait();
     }
 
