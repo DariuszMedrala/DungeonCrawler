@@ -359,7 +359,7 @@ public class MainMenuView {
 
         Text sterowanieDetails = new Text(
                 "• WASD – chodzisz. Jak nie działa, wina leży między krzesłem a klawiaturą.\n" +
-                        "• Prawy przycisk myszy - klikasz gdzie popadnie.\n\n"
+                        "• Lewy przycisk myszy - klikasz gdzie popadnie.\n\n"
         );
         sterowanieDetails.getStyleClass().add("about-content");
 
@@ -375,7 +375,9 @@ public class MainMenuView {
                         "Autorzy (Michał Kowal, Jerzy Kufel, Dariusz Mędrala) mieli prosty wybór:\n" +
                         " stać się legendami lub programować grę w Javie. \n" +
                         "No i masz babo placek.\n" +
-                        "Właściciel assetów użytych w grze jest CD Projekt Red.\n"
+                        "Gra powstała w ramach projektu naukowego\n" +
+                        "Nie jest to projekt komercyjny ani nie jest przeznaczony do sprzedaży.\n" +
+                        "Właścicielem assetów użytych w grze jest CD Projekt Red.\n"
         );
         textPart2.getStyleClass().add("about-content");
 
@@ -391,7 +393,7 @@ public class MainMenuView {
         contentRoot.getChildren().addAll(title, contentTextFlow, closeButtonAbout);
         frameRoot.setCenter(contentRoot);
 
-        Scene scene = new Scene(frameRoot, 600, 740);
+        Scene scene = new Scene(frameRoot, 700, 740);
         scene.setFill(Color.BLACK);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         aboutStage.setScene(scene);

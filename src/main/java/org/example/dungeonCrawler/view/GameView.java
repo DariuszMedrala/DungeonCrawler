@@ -1884,19 +1884,15 @@ public class GameView {
 
         switch (event.getCode()) {
             case W:
-            case UP:
                 controller.movePlayer(0, -1);
                 break;
             case S:
-            case DOWN:
                 controller.movePlayer(0, 1);
                 break;
             case A:
-            case LEFT:
                 controller.movePlayer(-1, 0);
                 break;
             case D:
-            case RIGHT:
                 controller.movePlayer(1, 0);
                 break;
         }
@@ -2176,7 +2172,7 @@ public class GameView {
 
         Text movementDetails = new Text(
                 "• WASD – chodzisz. Jak nie działa, wina leży między krzesłem a klawiaturą.\n" +
-                        "• Prawy przycisk myszy - klikasz gdzie popadnie.\n\n"
+                        "• Lewy przycisk myszy - klikasz gdzie popadnie.\n\n"
         );
         movementDetails.getStyleClass().add("about-content");
 

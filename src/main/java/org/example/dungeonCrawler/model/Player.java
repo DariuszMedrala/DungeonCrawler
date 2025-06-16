@@ -35,8 +35,8 @@ public class Player {
     public Player(int startX, int startY) {
         this.x = startX;
         this.y = startY;
-        this.health = 1000;
-        this.maxHealth = 1000;
+        this.health = 100;
+        this.maxHealth = 100;
         this.baseDamage = 15;
         this.level = 1;
         this.experience = 0;
