@@ -6,6 +6,12 @@
     -fx-border-radius: 5px;
 }
 
+.root-no-radius {
+    -fx-border-color: #ff9500;
+    -fx-border-width: 5px;
+    -fx-padding: 0 -1px 0 4px;
+}
+
 .custom-title-bar {
     -fx-background-color: #1a1a1a;
     -fx-alignment: center-left;
@@ -165,6 +171,23 @@
     -fx-font-family: 'Cinzel', serif;
     -fx-text-alignment: center;
 }
+
+.enemy-text {
+    -fx-font-size: 18px;
+    -fx-fill: #ce1515;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-alignment: center;
+}
+
+.player-text {
+    -fx-font-size: 18px;
+    -fx-fill: #ffab00;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-text-alignment: center;
+}
+
 
 .game-over-text-bold {
     -fx-font-size: 15px;
@@ -345,9 +368,16 @@
 .panel-title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-text-fill: #c9b037;
     -fx-effect: dropshadow(gaussian, #000000, 2, 0.6, 1, 1);
 }
+
+.panel-title-section {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: FF9100FF;
+    -fx-effect: dropshadow(gaussian, #000000, 2, 0.6, 1, 1);
+}
+
 
 .section-title {
     -fx-font-size: 16px;
@@ -377,11 +407,9 @@
 .side-panel {
     -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
     -fx-border-color: #8b4513;
-    -fx-border-width: 3px;
+    -fx-border-width: 5px;
     -fx-border-style: solid;
-    -fx-effect: dropshadow(gaussian, #000000, 12, 0.8, -4, 4);
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
+    -fx-border-radius: 1px;
 }
 
 .section {
@@ -396,6 +424,15 @@
 .status-effects {
     -fx-font-size: 13px;
     -fx-text-fill: #ff9500;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-background-color: transparent;
+    -fx-padding: 0px 8px;
+    -fx-font-weight: bold;
+}
+
+.status-effects-green {
+    -fx-font-size: 13px;
+    -fx-text-fill: #ffffff;
     -fx-font-family: 'Cinzel', serif;
     -fx-background-color: transparent;
     -fx-padding: 0px 8px;

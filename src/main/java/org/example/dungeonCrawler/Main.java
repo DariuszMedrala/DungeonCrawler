@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -30,7 +29,7 @@ public class Main extends Application {
     private MainMenuView mainMenuView;
     private GameView gameView;
 
-    private Pane dimmerOverlay;
+    private final Pane dimmerOverlay = new Pane();
 
     private double xOffset = 0;
     private double yOffset = 0;
@@ -48,7 +47,6 @@ public class Main extends Application {
         viewContainer = new StackPane();
         mainLayout.setCenter(viewContainer);
 
-        dimmerOverlay = new Pane();
         dimmerOverlay.setStyle("-fx-background-color: black;");
         dimmerOverlay.setOpacity(0.0);
         dimmerOverlay.setMouseTransparent(true);
@@ -112,33 +110,85 @@ public class Main extends Application {
         return titleBar;
     }
 
-    public void transitionToView(Parent newView) {
-        if (newView == null || currentView == newView) {
-            return;
-        }
+    /**
+     * Public method to switch to the main menu. Calls the specific transition handler.
+     */
+    public void showMainMenu() {
+        transitionToMenu();
+    }
 
-        dimmerOverlay.setMouseTransparent(false);
+    /**
+     * Public method to start or restart the game. Calls the specific transition handler.
+     * @param playerName The name of the player.
+     * @param isNewGame True if this is the very first game start, to show the welcome dialog.
+     */
+    public void startGame(String playerName, boolean isNewGame) {
+        transitionToGame(playerName, isNewGame);
+    }
+
+    /**
+     * Handles the complete transition process to the game view.
+     * It disposes of the old view, creates the new game view, and manages animations and music.
+     * @param playerName The name of the player for the new game session.
+     * @param showWelcome True if the welcome dialog should be shown after the transition.
+     */
+    private void transitionToGame(String playerName, boolean showWelcome) {
+        Parent oldView = currentView;
+
         FadeTransition fadeToBlack = new FadeTransition(Duration.seconds(0.5), dimmerOverlay);
         fadeToBlack.setFromValue(0.0);
         fadeToBlack.setToValue(1.0);
 
         fadeToBlack.setOnFinished(event -> {
-            if (currentView != null) {
-                if (mainMenuView != null && currentView == mainMenuView.getViewLayout()) mainMenuView.disposeResources();
-                else if (gameView != null && currentView == gameView.getViewLayout()) gameView.disposeResources();
+            if (mainMenuView != null && oldView == mainMenuView.getViewLayout()) {
+                mainMenuView.disposeResources();
+                mainMenuView = null;
+            } else if (gameView != null && oldView == gameView.getViewLayout()) {
+                gameView.disposeResources();
             }
 
+            gameView = new GameView(this, playerName);
+            currentView = gameView.getViewLayout();
             viewContainer.getChildren().clear();
-            viewContainer.getChildren().add(newView);
-            currentView = newView;
+            viewContainer.getChildren().add(currentView);
+            gameView.updateDisplay();
+            gameView.playMusic();
+            gameView.setupKeyHandlers();
+            FadeTransition fadeFromBlack = new FadeTransition(Duration.seconds(0.5), dimmerOverlay);
+            fadeFromBlack.setFromValue(1.0);
+            fadeFromBlack.setToValue(0.0);
+            fadeFromBlack.setOnFinished(e -> {
+                dimmerOverlay.setMouseTransparent(true);
+                if (showWelcome) {
+                    javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(500));
+                    delay.setOnFinished(evt -> Platform.runLater(() -> gameView.showWelcomeDialog()));
+                    delay.play();
+                }
+            });
+            fadeFromBlack.play();
+        });
 
-            if (mainMenuView != null && currentView.equals(mainMenuView.getViewLayout())) {
-                mainMenuView.playMusic();
-            } else if (gameView != null && currentView.equals(gameView.getViewLayout())) {
-                gameView.playMusic();
-                gameView.setupKeyHandlers();
-                gameView.updateDisplay();
+        dimmerOverlay.setMouseTransparent(false);
+        fadeToBlack.play();
+    }
+
+    private void transitionToMenu() {
+        Parent oldView = currentView;
+
+        FadeTransition fadeToBlack = new FadeTransition(Duration.seconds(0.5), dimmerOverlay);
+        fadeToBlack.setFromValue(0.0);
+        fadeToBlack.setToValue(1.0);
+
+        fadeToBlack.setOnFinished(event -> {
+            if (gameView != null && oldView == gameView.getViewLayout()) {
+                gameView.disposeResources();
+                gameView = null;
             }
+            mainMenuView = new MainMenuView(this);
+            currentView = mainMenuView.getViewLayout();
+            viewContainer.getChildren().clear();
+            viewContainer.getChildren().add(currentView);
+            mainMenuView.playMusic();
 
             FadeTransition fadeFromBlack = new FadeTransition(Duration.seconds(0.5), dimmerOverlay);
             fadeFromBlack.setFromValue(1.0);
@@ -146,21 +196,9 @@ public class Main extends Application {
             fadeFromBlack.setOnFinished(e -> dimmerOverlay.setMouseTransparent(true));
             fadeFromBlack.play();
         });
+
+        dimmerOverlay.setMouseTransparent(false);
         fadeToBlack.play();
-    }
-
-    public void showMainMenu() {
-        mainMenuView = new MainMenuView(this);
-        transitionToView(mainMenuView.getViewLayout());
-    }
-
-    public void startGame(String playerName, boolean showWelcomeDialog) {
-        gameView = new GameView(this, playerName);
-        transitionToView(gameView.getViewLayout());
-
-        if (showWelcomeDialog){
-            Platform.runLater(gameView::showWelcomeDialog);
-        }
     }
 
     public Stage getPrimaryStage() {

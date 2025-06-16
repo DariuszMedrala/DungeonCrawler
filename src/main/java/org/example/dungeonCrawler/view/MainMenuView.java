@@ -224,7 +224,7 @@ public class MainMenuView {
                 VBox gameOverTextAndButtonsVBox = new VBox(15);
                 gameOverTextAndButtonsVBox.setAlignment(Pos.CENTER);
                 Text header = new Text("💀 ZŁA DECYZJA! 💀\n");
-                header.getStyleClass().add("game-over-text-bold");
+                header.getStyleClass().add("game-over-text-mid");
                 Text line1 = new Text("No i co zrobiłeś, półgłówku?\nWalnąłeś strażnika w mordę.\nTeraz gnijesz w celi, gdzie szczury mają imiona.\n");
                 line1.getStyleClass().add("game-over-text");
                 line1.setWrappingWidth(400);

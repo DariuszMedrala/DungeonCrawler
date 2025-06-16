@@ -56,6 +56,7 @@ public class GameView {
     private AudioClip buttonClickSound;
     private MediaPlayer gameMusicPlayer;
     private MediaPlayer victoryMusicPlayer;
+    private MediaPlayer defeatMusicPlayer;
 
     private Stage combatChoiceStage;
     private Stage combatResultStage;
@@ -96,6 +97,13 @@ public class GameView {
         victoryMusicPlayer = new MediaPlayer(victoryMusic);
         victoryMusicPlayer.setVolume(0.1);
         victoryMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+
+        String defeatMusicPath = Objects.requireNonNull(getClass().getResource("/music/defeat_music.mp3")).toExternalForm();
+        Media defeatMusic = new Media(defeatMusicPath);
+        defeatMusicPlayer = new MediaPlayer(defeatMusic);
+        defeatMusicPlayer.setVolume(0.3);
+        defeatMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
     }
 
     private void playButtonClickSound() {
@@ -106,7 +114,7 @@ public class GameView {
 
     private void createMainLayout() {
         gameLayout = new BorderPane();
-        gameLayout.getStyleClass().add("root");
+        gameLayout.getStyleClass().add("root-no-radius");
 
         createMapArea();
         gameLayout.setCenter(mapScrollPane);
@@ -140,7 +148,7 @@ public class GameView {
         welcomeStage.initOwner(mainApp.getPrimaryStage());
         welcomeStage.setTitle("Witaj w Lochach Novigradu!");
         welcomeStage.setResizable(false);
-        welcomeStage.initStyle(StageStyle.UNDECORATED);
+        welcomeStage.initStyle(StageStyle.TRANSPARENT);
         welcomeStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -210,6 +218,7 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene welcomeScene = new Scene(root, 1100, 650);
+        welcomeScene.setFill(Color.TRANSPARENT);
         welcomeScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
         welcomeStage.setScene(welcomeScene);
@@ -218,6 +227,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             welcomeStage.setX(primaryStage.getX() + (primaryStage.getWidth() - welcomeStage.getWidth()) / 2);
             welcomeStage.setY(primaryStage.getY() + (primaryStage.getHeight() - welcomeStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         welcomeStage.showAndWait();
@@ -397,7 +407,7 @@ public class GameView {
         eventStage.setTitle("Tajemnicze Miejsce");
         eventStage.setResizable(false);
         eventStage.setOnCloseRequest(Event::consume);
-        eventStage.initStyle(StageStyle.UNDECORATED);
+        eventStage.initStyle(StageStyle.TRANSPARENT);
         eventStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -407,7 +417,7 @@ public class GameView {
 
         ImageView eventImage;
         eventImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/surprise.png"))));
-       
+
 
         StackPane imageContainer = new StackPane();
         imageContainer.getStyleClass().add("image-frame");
@@ -417,18 +427,18 @@ public class GameView {
         eventImage.setFitHeight(targetImageHeight);
         eventImage.setPreserveRatio(true);
         imageContainer.getChildren().add(eventImage);
-        
+
         double imageRatio = eventImage.getImage().getWidth() / eventImage.getImage().getHeight();
         double targetImageWidth = targetImageHeight * imageRatio;
-        
-        double framePadding = 5.0; 
+
+        double framePadding = 5.0;
         double finalFrameWidth = targetImageWidth + (2 * framePadding);
         double finalFrameHeight = targetImageHeight + (2 * framePadding);
-        
+
         imageContainer.setPrefSize(finalFrameWidth, finalFrameHeight);
         imageContainer.setMinSize(finalFrameWidth, finalFrameHeight);
         imageContainer.setMaxSize(finalFrameWidth, finalFrameHeight);
-        
+
 
         VBox textAndButtonsVBox = new VBox(15);
         textAndButtonsVBox.setAlignment(Pos.CENTER);
@@ -480,7 +490,7 @@ public class GameView {
         root.getChildren().add(mainContentHBox);
 
         Scene eventScene = new Scene(root, 1100, 470);
-        
+        eventScene.setFill(Color.TRANSPARENT);
         eventScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         eventStage.setScene(eventScene);
         eventStage.sizeToScene();
@@ -489,6 +499,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             eventStage.setX(primaryStage.getX() + (primaryStage.getWidth() - eventStage.getWidth()) / 2);
             eventStage.setY(primaryStage.getY() + (primaryStage.getHeight() - eventStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         eventStage.showAndWait();
@@ -501,8 +512,8 @@ public class GameView {
         sidePanel.getStyleClass().add("side-panel");
         sidePanel.setPrefWidth(380);
 
-        Label sidePanelTitleLabel = new Label("WIEDŹMIN: " + playerName.toUpperCase());
-        sidePanelTitleLabel.getStyleClass().add("panel-title");
+        Label sidePanelTitleLabel = new Label("WIEDŹMIN: " + playerName);
+        sidePanelTitleLabel.getStyleClass().add("status-effects");
         HBox titleContainer = new HBox(sidePanelTitleLabel);
         titleContainer.setAlignment(Pos.CENTER);
         VBox.setMargin(titleContainer, new Insets(0, 0, 10, 0));
@@ -559,10 +570,10 @@ public class GameView {
         playerStatsSection = new VBox(2);
         playerStatsSection.getStyleClass().add("section");
         Label statsTitle = new Label("STATYSTYKI");
-        statsTitle.getStyleClass().add("section-title");
+        statsTitle.getStyleClass().add("status-effects");
         playerStatsLabel = new Label("Ładowanie statystyk...");
         playerStatsLabel.getStyleClass().clear();
-        playerStatsLabel.getStyleClass().add("status-effects");
+        playerStatsLabel.getStyleClass().add("status-effects-green");
         playerStatsLabel.setWrapText(true);
         playerStatsLabel.setMaxWidth(Double.MAX_VALUE);
 
@@ -588,15 +599,15 @@ public class GameView {
         statusEffectsSection.getStyleClass().add("section");
 
         Label statusTitle = new Label("STATUSY");
-        statusTitle.getStyleClass().add("section-title");
+        statusTitle.getStyleClass().add("status-effects");
 
         statusEffectsLabel = new Label("Brak aktywnych statusów.");
-        statusEffectsLabel.getStyleClass().add("status-effects");
+        statusEffectsLabel.getStyleClass().add("status-effects-green");
         statusEffectsLabel.setWrapText(true);
 
         statusEffectsSection.getChildren().addAll(statusTitle, statusEffectsLabel);
     }
-    
+
 
     public void showBackpackWindow() {
         if (backpackStage == null) {
@@ -605,7 +616,7 @@ public class GameView {
             backpackStage.initOwner(mainApp.getPrimaryStage());
             backpackStage.setTitle("Plecak Wiedźmina");
             backpackStage.setResizable(false);
-            backpackStage.initStyle(StageStyle.UNDECORATED);
+            backpackStage.initStyle(StageStyle.TRANSPARENT);
             backpackStage.initModality(Modality.APPLICATION_MODAL);
 
             VBox root = new VBox(15);
@@ -620,7 +631,7 @@ public class GameView {
             ScrollPane inventoryScrollPane = new ScrollPane();
             backpackItemsContainer = new VBox(8);
             inventoryScrollPane.setContent(backpackItemsContainer);
-            
+
             inventoryScrollPane.setPrefHeight(550);
 
             inventoryScrollPane.setFitToWidth(true);
@@ -635,19 +646,19 @@ public class GameView {
 
             root.getChildren().addAll(title, inventoryViewSection, closeButton);
             Scene backpackScene = new Scene(root, 800, 750);
+            backpackScene.setFill(Color.TRANSPARENT);
             backpackScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
             backpackStage.setScene(backpackScene);
+
+            backpackStage.setOnShown(e -> {
+                Stage primaryStage = mainApp.getPrimaryStage();
+                backpackStage.setX(primaryStage.getX() + (mapScrollPane.getWidth() - backpackStage.getWidth()) / 2);
+                backpackStage.setY(primaryStage.getY() + 70);
+                AnimationUtil.playFadeInTransition(root, null);
+            });
         }
 
         updateBackpackContent();
-
-        backpackStage.setOnShown(e -> {
-            Stage primaryStage = mainApp.getPrimaryStage();
-
-            backpackStage.setX(primaryStage.getX() + (mapScrollPane.getWidth() - backpackStage.getWidth()) / 2);
-            backpackStage.setY(primaryStage.getY() + 70);
-        });
-
         backpackStage.showAndWait();
     }
 
@@ -724,7 +735,7 @@ public class GameView {
             }
         }
     }
-    
+
     public boolean showItemDiscoveryDialog(Item item, Room room) {
         final AtomicBoolean itemWasPickedUp = new AtomicBoolean(false);
 
@@ -733,7 +744,7 @@ public class GameView {
         discoveryStage.initOwner(mainApp.getPrimaryStage());
         discoveryStage.setTitle("Odkryto Przedmiot!");
         discoveryStage.setResizable(false);
-        discoveryStage.initStyle(StageStyle.UNDECORATED);
+        discoveryStage.initStyle(StageStyle.TRANSPARENT);
         discoveryStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -751,7 +762,7 @@ public class GameView {
         itemImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
         itemImage.setFitHeight(275);
         itemImage.setPreserveRatio(true);
-        
+
 
         StackPane imageContainer = new StackPane();
         imageContainer.getChildren().add(itemImage);
@@ -812,9 +823,9 @@ public class GameView {
         buttonBox.getChildren().addAll(pickUpButton, leaveButton);
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
-        
+
         textAndButtonsVBox.getChildren().addAll(localTitle, contentLabel, spacer, buttonBox);
-        
+
 
 
         HBox mainContentHBox = new HBox(10);
@@ -828,6 +839,7 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene discoveryScene = new Scene(root, 800, 420);
+        discoveryScene.setFill(Color.TRANSPARENT);
         discoveryScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         discoveryStage.setScene(discoveryScene);
         discoveryStage.sizeToScene();
@@ -836,6 +848,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             discoveryStage.setX(primaryStage.getX() + (primaryStage.getWidth() - discoveryStage.getWidth()) / 2);
             discoveryStage.setY(primaryStage.getY() + (primaryStage.getHeight() - discoveryStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         discoveryStage.showAndWait();
@@ -848,7 +861,7 @@ public class GameView {
         treasureDiscoveryStage.initOwner(mainApp.getPrimaryStage());
         treasureDiscoveryStage.setTitle("Komora Skarbca!");
         treasureDiscoveryStage.setResizable(false);
-        treasureDiscoveryStage.initStyle(StageStyle.UNDECORATED);
+        treasureDiscoveryStage.initStyle(StageStyle.TRANSPARENT);
         treasureDiscoveryStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -860,7 +873,7 @@ public class GameView {
         treasureImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/chest.jpg"))));
         treasureImage.setFitWidth(350);
         treasureImage.setPreserveRatio(true);
-       
+
 
         StackPane imageContainer = new StackPane();
         imageContainer.getChildren().add(treasureImage);
@@ -886,7 +899,7 @@ public class GameView {
             treasureDiscoveryStage.close();
             updateDisplay();
         });
-        
+
         if (player.hasKey()) {
             if (player.isInventoryFull()) {
                 contentLabel = new Label(
@@ -897,6 +910,7 @@ public class GameView {
                 );
                 openButton = new Button("🗝 UŻYJ KLUCZA");
                 openButton.getStyleClass().add("dialog-button-secondary");
+                openButton.setDisable(true);
             } else {
                 contentLabel = new Label(
                         "A niech mnie drzwi ścisną… Skarbiec! Prawdziwy, zasrany skarbiec!\n" +
@@ -911,11 +925,11 @@ public class GameView {
                     playButtonClickSound();
                     player.removeKey();
                     player.addItem(treasureItem);
-                    treasureRoom.setItem(null);
-                    treasureRoom.setTreasureOpened(true);
-                    showTreasureFoundDialog(treasureItem, treasureDiscoveryStage);
+                    treasureDiscoveryStage.setOnHidden(event -> {
+                        showTreasureFoundDialog(treasureItem, mainApp.getPrimaryStage());
+                        updateDisplay();
+                    });
                     treasureDiscoveryStage.close();
-                    updateDisplay();
                 });
             }
         } else {
@@ -952,8 +966,9 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene discoveryScene = new Scene(root, 900, 450);
+        discoveryScene.setFill(Color.TRANSPARENT);
         discoveryScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-        
+
         treasureDiscoveryStage.setScene(discoveryScene);
         treasureDiscoveryStage.sizeToScene();
 
@@ -961,6 +976,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             treasureDiscoveryStage.setX(primaryStage.getX() + (primaryStage.getWidth() - treasureDiscoveryStage.getWidth()) / 2);
             treasureDiscoveryStage.setY(primaryStage.getY() + (primaryStage.getHeight() - treasureDiscoveryStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         treasureDiscoveryStage.showAndWait();
@@ -972,7 +988,7 @@ public class GameView {
         treasureFoundStage.initOwner(parentStage);
         treasureFoundStage.setTitle("Skarb Znaleziony!");
         treasureFoundStage.setResizable(false);
-        treasureFoundStage.initStyle(StageStyle.UNDECORATED);
+        treasureFoundStage.initStyle(StageStyle.TRANSPARENT);
         treasureFoundStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -981,11 +997,11 @@ public class GameView {
         root.getStyleClass().add("custom-dialog-background");
 
         ImageView treasureFoundImage;
-       
+
         treasureFoundImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/treasure_found.jpg"))));
         treasureFoundImage.setFitWidth(300);
         treasureFoundImage.setPreserveRatio(true);
-       
+
 
         StackPane imageContainer = new StackPane();
         imageContainer.getChildren().add(treasureFoundImage);
@@ -1030,6 +1046,7 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene scene = new Scene(root, 750, 350);
+        scene.setFill(Color.TRANSPARENT);
         try {
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         } catch (NullPointerException e) {
@@ -1042,6 +1059,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             treasureFoundStage.setX(primaryStage.getX() + (primaryStage.getWidth() - treasureFoundStage.getWidth()) / 2);
             treasureFoundStage.setY(primaryStage.getY() + (primaryStage.getHeight() - treasureFoundStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         treasureFoundStage.showAndWait();
@@ -1054,7 +1072,7 @@ public class GameView {
         confirmDropStage.initOwner(backpackOwnerStage);
         confirmDropStage.setTitle("Wyrzuć Przedmiot?");
         confirmDropStage.setResizable(false);
-        confirmDropStage.initStyle(StageStyle.UNDECORATED);
+        confirmDropStage.initStyle(StageStyle.TRANSPARENT);
         confirmDropStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(15);
@@ -1098,8 +1116,9 @@ public class GameView {
         root.getChildren().addAll(title, contentLabel, buttonBox);
 
         Scene confirmScene = new Scene(root);
+        confirmScene.setFill(Color.TRANSPARENT);
         confirmScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-       
+
         confirmDropStage.setScene(confirmScene);
         confirmDropStage.sizeToScene();
 
@@ -1107,6 +1126,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             confirmDropStage.setX(primaryStage.getX() + (primaryStage.getWidth() - confirmDropStage.getWidth()) / 2);
             confirmDropStage.setY(primaryStage.getY() + (primaryStage.getHeight() - confirmDropStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         confirmDropStage.showAndWait();
@@ -1118,7 +1138,7 @@ public class GameView {
         levelUpStage.initOwner(mainApp.getPrimaryStage());
         levelUpStage.setTitle("Awans na Poziom!");
         levelUpStage.setResizable(false);
-        levelUpStage.initStyle(StageStyle.UNDECORATED);
+        levelUpStage.initStyle(StageStyle.TRANSPARENT);
         levelUpStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -1127,11 +1147,11 @@ public class GameView {
         root.getStyleClass().add("custom-dialog-background");
 
         ImageView levelUpImage;
-      
+
         levelUpImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/level_up.png"))));
         levelUpImage.setFitWidth(300);
         levelUpImage.setPreserveRatio(true);
-      
+
 
         StackPane imageContainer = new StackPane();
         imageContainer.getChildren().add(levelUpImage);
@@ -1182,8 +1202,9 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene scene = new Scene(root, 750, 500);
+        scene.setFill(Color.TRANSPARENT);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-      
+
         levelUpStage.setScene(scene);
         levelUpStage.sizeToScene();
 
@@ -1191,6 +1212,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             levelUpStage.setX(primaryStage.getX() + (primaryStage.getWidth() - levelUpStage.getWidth()) / 2);
             levelUpStage.setY(primaryStage.getY() + (primaryStage.getHeight() - levelUpStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         levelUpStage.showAndWait();
@@ -1203,7 +1225,7 @@ public class GameView {
         popupStage.initOwner(mainApp.getPrimaryStage());
         popupStage.setResizable(false);
         popupStage.setTitle("Szczegóły Przedmiotu");
-        popupStage.initStyle(StageStyle.UNDECORATED);
+        popupStage.initStyle(StageStyle.TRANSPARENT);
         popupStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox popupLayout = new VBox(10);
@@ -1248,14 +1270,18 @@ public class GameView {
         popupLayout.getChildren().addAll(itemNameLabel, itemDescriptionLabel, closeButton);
 
         Scene popupScene = new Scene(popupLayout);
+        popupScene.setFill(Color.TRANSPARENT);
         popupScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-       
+
         popupStage.setScene(popupScene);
 
-        double screenX = itemLabel.localToScreen(itemLabel.getBoundsInLocal()).getMinX();
-        double screenY = itemLabel.localToScreen(itemLabel.getBoundsInLocal()).getMinY();
-        popupStage.setX(screenX + itemLabel.getWidth() + 10);
-        popupStage.setY(screenY);
+        popupStage.setOnShown(e -> {
+            double screenX = itemLabel.localToScreen(itemLabel.getBoundsInLocal()).getMinX();
+            double screenY = itemLabel.localToScreen(itemLabel.getBoundsInLocal()).getMinY();
+            popupStage.setX(screenX + itemLabel.getWidth() + 10);
+            popupStage.setY(screenY);
+            AnimationUtil.playFadeInTransition(popupLayout, null);
+        });
 
         popupStage.show();
     }
@@ -1278,7 +1304,7 @@ public class GameView {
         menuStage.initModality(Modality.WINDOW_MODAL);
         menuStage.initOwner(mainApp.getPrimaryStage());
         menuStage.setTitle("Menu Gry");
-        menuStage.initStyle(StageStyle.UNDECORATED);
+        menuStage.initStyle(StageStyle.TRANSPARENT);
         menuStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox menuLayout = new VBox(15);
@@ -1321,6 +1347,7 @@ public class GameView {
         menuLayout.getChildren().addAll(helpBtn, newGameBtn, exitToMainMenuBtn, closeMenuBtn);
 
         Scene menuDialogScene = new Scene(menuLayout, 350, 300);
+        menuDialogScene.setFill(Color.TRANSPARENT);
         try {
             menuDialogScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         } catch (NullPointerException e) {
@@ -1332,6 +1359,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             menuStage.setX(primaryStage.getX() + (primaryStage.getWidth() - menuStage.getWidth()) / 2);
             menuStage.setY(primaryStage.getY() + (primaryStage.getHeight() - menuStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(menuLayout, null);
         });
 
         menuStage.showAndWait();
@@ -1343,7 +1371,7 @@ public class GameView {
         confirmNewGameStage.initOwner(menuStageToClose);
         confirmNewGameStage.setTitle("Nowa Gra?");
         confirmNewGameStage.setResizable(false);
-        confirmNewGameStage.initStyle(StageStyle.UNDECORATED);
+        confirmNewGameStage.initStyle(StageStyle.TRANSPARENT);
         confirmNewGameStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(15);
@@ -1386,8 +1414,9 @@ public class GameView {
         root.getChildren().addAll(title, contentLabel, buttonBox);
 
         Scene confirmScene = new Scene(root);
+        confirmScene.setFill(Color.TRANSPARENT);
         confirmScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-       
+
         confirmNewGameStage.setScene(confirmScene);
         confirmNewGameStage.sizeToScene();
 
@@ -1395,6 +1424,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             confirmNewGameStage.setX(primaryStage.getX() + (primaryStage.getWidth() - confirmNewGameStage.getWidth()) / 2);
             confirmNewGameStage.setY(primaryStage.getY() + (primaryStage.getHeight() - confirmNewGameStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         confirmNewGameStage.showAndWait();
@@ -1407,7 +1437,7 @@ public class GameView {
         legendStage.initOwner(mainApp.getPrimaryStage());
         legendStage.setTitle("Legenda Mapy");
         legendStage.setResizable(false);
-        legendStage.initStyle(StageStyle.UNDECORATED);
+        legendStage.initStyle(StageStyle.TRANSPARENT);
         legendStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(8);
@@ -1465,6 +1495,7 @@ public class GameView {
         root.getChildren().addAll(titleContainer, columnsContainer, okButton);
 
         Scene legendScene = new Scene(root, 480, 500);
+        legendScene.setFill(Color.TRANSPARENT);
         legendScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         legendStage.setScene(legendScene);
 
@@ -1472,6 +1503,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             legendStage.setX(primaryStage.getX() + (primaryStage.getWidth() - legendStage.getWidth()) / 2);
             legendStage.setY(primaryStage.getY() + (primaryStage.getHeight() - legendStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         legendStage.showAndWait();
@@ -1484,7 +1516,7 @@ public class GameView {
         confirmStage.initOwner(mainApp.getPrimaryStage());
         confirmStage.setTitle("Potwierdzenie Wyjścia");
         confirmStage.setResizable(false);
-        confirmStage.initStyle(StageStyle.UNDECORATED);
+        confirmStage.initStyle(StageStyle.TRANSPARENT);
         confirmStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(15);
@@ -1524,6 +1556,7 @@ public class GameView {
         root.getChildren().addAll(title, contentLabel, buttonBox);
 
         Scene confirmScene = new Scene(root);
+        confirmScene.setFill(Color.TRANSPARENT);
         confirmScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         confirmStage.setScene(confirmScene);
         confirmStage.sizeToScene();
@@ -1532,11 +1565,12 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             confirmStage.setX(primaryStage.getX() + (primaryStage.getWidth() - confirmStage.getWidth()) / 2);
             confirmStage.setY(primaryStage.getY() + (primaryStage.getHeight() - confirmStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         confirmStage.showAndWait();
     }
-    
+
     public void showCombatChoiceDialog(Enemy enemy, boolean canFlee) {
         Player player = controller.getPlayer();
 
@@ -1561,7 +1595,7 @@ public class GameView {
         combatChoiceStage.setResizable(false);
         combatChoiceStage.setTitle("Walka z " + enemy.getName().toUpperCase() + "!");
         combatChoiceStage.setOnCloseRequest(Event::consume);
-        combatChoiceStage.initStyle(StageStyle.UNDECORATED);
+        combatChoiceStage.initStyle(StageStyle.TRANSPARENT);
         combatChoiceStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -1596,12 +1630,12 @@ public class GameView {
                 String.format("PRZECIWNIK: \nŻYCIE: %d\nOBRAŻENIA: %d\n\n",
                         enemy.getHealth(), enemy.getDamage())
         );
-        combatMessage.getStyleClass().add("game-over-text");
+        combatMessage.getStyleClass().add("enemy-text");
         Text combatMessagePartTwo = new Text(
                 String.format("TWOJE STATYSTYKI:\n ŻYCIE: %d\nOBRAŻENIA: %d\nPANCERZ: %d\n\n",
                         player.getHealth(), player.getDamage(), player.getArmor())
         );
-        combatMessagePartTwo.getStyleClass().add("about-content");
+        combatMessagePartTwo.getStyleClass().add("player-text");
         Text combatMessageTwo = new Text(enemy.getEncounterText());
         combatMessageTwo.getStyleClass().add("about-content");
         contentTextFlow.getChildren().addAll(combatMessageTwo, combatMessage, combatMessagePartTwo);
@@ -1618,7 +1652,7 @@ public class GameView {
             }
         });
 
-    
+
         Button fleeButton;
         if (canFlee) {
             fleeButton = new Button("🏃 UCIEKAJ (Tracisz 20 HP)");
@@ -1652,6 +1686,7 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
         combatChoiceStage.setScene(scene);
@@ -1660,6 +1695,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             combatChoiceStage.setX(primaryStage.getX() + (primaryStage.getWidth() - combatChoiceStage.getWidth()) / 2);
             combatChoiceStage.setY(primaryStage.getY() + (primaryStage.getHeight() - combatChoiceStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         combatChoiceStage.showAndWait();
@@ -1673,7 +1709,7 @@ public class GameView {
         combatResultStage.setTitle("Wynik walki");
         combatResultStage.setResizable(false);
         combatResultStage.setOnCloseRequest(Event::consume);
-        combatResultStage.initStyle(StageStyle.UNDECORATED);
+        combatResultStage.initStyle(StageStyle.TRANSPARENT);
         combatResultStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -1761,6 +1797,7 @@ public class GameView {
         root.getChildren().addAll(mainContentHBox);
 
         Scene scene = new Scene(root, 800, 500);
+        scene.setFill(Color.TRANSPARENT);
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         combatResultStage.setScene(scene);
@@ -1769,6 +1806,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             combatResultStage.setX(primaryStage.getX() + (primaryStage.getWidth() - combatResultStage.getWidth()) / 2);
             combatResultStage.setY(primaryStage.getY() + (primaryStage.getHeight() - combatResultStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         combatResultStage.showAndWait();
@@ -1903,7 +1941,7 @@ public class GameView {
         Player player = controller.getPlayer();
         StringBuilder statusText = new StringBuilder();
         boolean hasAnyStatus = false;
-        
+
         if (player.isPoisoned()) {
             statusText.append("ZATRUCIE\n");
             statusText.append("Tracisz HP co turę\n");
@@ -1924,151 +1962,123 @@ public class GameView {
             statusEffectsLabel.setText("Brak aktywnych statusów.");
         }
     }
-    
-    private void showEndGameDialog(String title, String header, String content,
-                                   String imagePath, String buttonText, String buttonText2,
-                                   double dialogWidth, double dialogHeight) {
-        Stage endGameStage = new Stage();
-        endGameStage.initModality(Modality.APPLICATION_MODAL);
-        endGameStage.initOwner(mainApp.getPrimaryStage());
-        endGameStage.setTitle(title);
-        endGameStage.setResizable(false);
-        endGameStage.setOnCloseRequest(Event::consume);
-        endGameStage.initStyle(StageStyle.UNDECORATED);
-        endGameStage.initModality(Modality.APPLICATION_MODAL);
 
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(25));
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("custom-dialog-background");
+    private void showEndGameDialog(String title, String header, String content, String imagePath, String buttonText, String frameStyleClass, String imageStyleClass, String textStyle, String titleStyle) {
+        VBox contentRoot = new VBox(20);
+        contentRoot.setPadding(new Insets(25));
+        contentRoot.setAlignment(Pos.CENTER);
+        contentRoot.getStyleClass().add("custom-dialog-background");
 
-        ImageView dialogImage;
-       
-        dialogImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
+        ImageView dialogImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
         dialogImage.setFitHeight(400);
         dialogImage.setPreserveRatio(true);
-       
-
-        StackPane imageContainer = new StackPane();
-        imageContainer.getChildren().add(dialogImage);
-        imageContainer.getStyleClass().add("image-frame-red");
-        imageContainer.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        StackPane imageContainer = new StackPane(dialogImage);
+        imageContainer.getStyleClass().add(imageStyleClass);
 
         VBox textAndButtonsVBox = new VBox(15);
         textAndButtonsVBox.setAlignment(Pos.CENTER);
-        textAndButtonsVBox.setPadding(new Insets(0, 0, 0, 0));
 
         Label localTitle = new Label(header);
-        localTitle.getStyleClass().add("game-over-text-bold");
-        VBox.setMargin(localTitle, new Insets(0, 0, 10, 0));
-
-        TextFlow contentTextFlow = new TextFlow();
-        contentTextFlow.setTextAlignment(TextAlignment.CENTER);
-        contentTextFlow.getStyleClass().add("about-content-flow");
+        localTitle.getStyleClass().add(titleStyle);
 
         Text contentText = new Text(content);
-        contentText.getStyleClass().add("game-over-text-bold");
-        contentTextFlow.getChildren().add(contentText);
+        contentText.getStyleClass().add(textStyle);
+        TextFlow contentTextFlow = new TextFlow(contentText);
+        contentTextFlow.setTextAlignment(TextAlignment.CENTER);
 
         Button actionButton = new Button(buttonText);
         actionButton.getStyleClass().add("dialog-button-primary");
         actionButton.setOnAction(e -> {
             playButtonClickSound();
-            endGameStage.close();
+            ((Stage)actionButton.getScene().getWindow()).close();
             mainApp.startGame(playerName, false);
         });
 
-        Button leaveButton = new Button(buttonText2);
+        Button leaveButton = new Button("WRÓĆ DO MENU");
         leaveButton.getStyleClass().add("dialog-button-secondary");
         leaveButton.setOnAction(e -> {
             playButtonClickSound();
-            endGameStage.close();
+            ((Stage)leaveButton.getScene().getWindow()).close();
             mainApp.showMainMenu();
         });
-        
-        HBox buttonContainer = new HBox(20);
+
+        HBox buttonContainer = new HBox(20, actionButton, leaveButton);
         buttonContainer.setAlignment(Pos.CENTER);
-        buttonContainer.getChildren().addAll(actionButton, leaveButton);
         VBox.setMargin(buttonContainer, new Insets(30, 0, 0, 0));
-        
+
         textAndButtonsVBox.getChildren().addAll(localTitle, contentTextFlow, buttonContainer);
-
-        HBox mainContentHBox = new HBox(10);
+        HBox mainContentHBox = new HBox(10, imageContainer, textAndButtonsVBox);
         mainContentHBox.setAlignment(Pos.CENTER);
-
-        imageContainer.getChildren();
-        mainContentHBox.getChildren().addAll(imageContainer, textAndButtonsVBox);
         HBox.setHgrow(textAndButtonsVBox, Priority.ALWAYS);
-        root.getChildren().addAll(mainContentHBox);
+        contentRoot.getChildren().add(mainContentHBox);
 
-        Scene scene = new Scene(root, dialogWidth, dialogHeight);
+        BorderPane frameRoot = new BorderPane(contentRoot);
+        frameRoot.getStyleClass().add(frameStyleClass);
+
+        Stage endGameStage = new Stage();
+        endGameStage.initOwner(mainApp.getPrimaryStage());
+        configureAndShowDialog(endGameStage, title, frameRoot);
+    }
+
+    private void configureAndShowDialog(Stage stage, String title, Parent rootContent) {
+        stage.setTitle(title);
+        if (stage.getStyle() != StageStyle.TRANSPARENT) {
+            stage.initStyle(StageStyle.TRANSPARENT);
+        }
+        if (stage.getModality() != Modality.APPLICATION_MODAL) {
+            stage.initModality(Modality.APPLICATION_MODAL);
+        }
+
+        Scene scene = new Scene(rootContent);
+        scene.setFill(Color.TRANSPARENT);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
-        
-        endGameStage.setScene(scene);
-        endGameStage.sizeToScene();
 
-        endGameStage.setOnShown(e -> {
-            Stage primaryStage = mainApp.getPrimaryStage();
-            endGameStage.setX(primaryStage.getX() + (primaryStage.getWidth() - endGameStage.getWidth()) / 2);
-            endGameStage.setY(primaryStage.getY() + (primaryStage.getHeight() - endGameStage.getHeight()) / 2);
+        stage.setScene(scene);
+        stage.sizeToScene();
+
+        stage.setOnShown(e -> {
+            Stage owner = (Stage) stage.getOwner();
+            if (owner != null) {
+                stage.setX(owner.getX() + (owner.getWidth() - stage.getWidth()) / 2);
+                stage.setY(owner.getY() + (owner.getHeight() - stage.getHeight()) / 2);
+            }
+            AnimationUtil.playFadeInTransition(rootContent, null);
         });
-
-        endGameStage.showAndWait();
+        stage.showAndWait();
     }
 
 
 
     public void showGameOver() {
-        if (combatChoiceStage != null && combatChoiceStage.isShowing()) {
-            combatChoiceStage.close();
-        }
-        if (combatResultStage != null && combatResultStage.isShowing()) {
-            combatResultStage.close();
+        if (gameMusicPlayer != null) gameMusicPlayer.stop();
+        if (defeatMusicPlayer != null) {
+            defeatMusicPlayer.play();
         }
 
+        if (combatChoiceStage != null && combatChoiceStage.isShowing()) combatChoiceStage.close();
+        if (combatResultStage != null && combatResultStage.isShowing()) combatResultStage.close();
         Platform.runLater(() -> {
-            String title = "KIEPSKIE ZAKOŃCZENIE";
-            String header = "💀 NO I KLOPS, UMARŁEŚ! 💀";
             String content = playerName + ", to tak się kończy, jak się łazi po lochach bez rozumu.\n" +
                     "Liczyłeś na chwałę? No, nie tym razem. Twoje kości będą dobrą strawą dla szczurów.\n\n" +
                     "A tyle gadałem, żebyś uważał. Ale dobra, marny wiedźmin ze złymi wyborami.\n" +
                     "Wracasz do nauki na sesję? Albo może spróbujesz znowu, z nadzieją na mniej żałosny koniec?\n" +
                     "Bo przecież nawet z trupa da się wycisnąć jeszcze trochę pecha.";
-            String imagePath = "/images/game_over.png";
-            String buttonText = "HERE WE GO AGAIN!";
-            String buttonText2 = "WRÓĆ DO MENU";
 
-            double customWidth = 850; 
-            double customHeight = 450;
-            showEndGameDialog(title, header, content, imagePath, buttonText, buttonText2, customWidth, customHeight);
+            showEndGameDialog("KIEPSKIE ZAKOŃCZENIE", "💀 NO I KLOPS, UMARŁEŚ! 💀", content,
+                    "/images/game_over.png", "HERE WE GO AGAIN!", "custom-frame-red", "custom-frame-red", "game-over-text", "game-over-text-bold");
         });
     }
 
     public void showVictory(Enemy boss, int expGained) {
-        if (gameMusicPlayer != null) {
-            gameMusicPlayer.stop();
-        }
-        if (victoryMusicPlayer != null) {
-            victoryMusicPlayer.play();
-        }
-        if (combatChoiceStage != null && combatChoiceStage.isShowing()) {
-            combatChoiceStage.close();
-        }
-        if (combatResultStage != null && combatResultStage.isShowing()) {
-            combatResultStage.close();
-        }
+        if (gameMusicPlayer != null) gameMusicPlayer.stop();
+        if (victoryMusicPlayer != null) victoryMusicPlayer.play();
+        if (combatChoiceStage != null && combatChoiceStage.isShowing()) combatChoiceStage.close();
+        if (combatResultStage != null && combatResultStage.isShowing()) combatResultStage.close();
 
-        String title = "👑 ZWYCIĘSTWO WIEDŹMINA!";
-        String header = "🐉 POKONAŁEŚ " + boss.getName().toUpperCase() + "!";
         String content = String.format(boss.getDeathText(), expGained);
 
-        String imagePath = "/images/end_victory.png";
-        String buttonText = "NOWA PRZYGODA";
-        String buttonText2 = "WRÓĆ DO MENU";
-
-        double victoryWidth = 800;
-        double victoryHeight = 550;
-        showEndGameDialog(title, header, content, imagePath, buttonText, buttonText2, victoryWidth, victoryHeight);
+        showEndGameDialog("👑 ZWYCIĘSTWO WIEDŹMINA!", "🐉 POKONAŁEŚ " + boss.getName().toUpperCase() + "!",
+                content, "/images/end_victory.png", "NOWA PRZYGODA", "custom-frame-yellow", "custom-frame-yellow", "about-content", "game-over-text-mid");
     }
 
     private void showHelp() {
@@ -2077,7 +2087,7 @@ public class GameView {
         helpStage.initOwner(mainApp.getPrimaryStage());
         helpStage.setTitle("Pomoc - Wiedźmin: Lochy Novigradu");
         helpStage.setResizable(false);
-        helpStage.initStyle(StageStyle.UNDECORATED);
+        helpStage.initStyle(StageStyle.TRANSPARENT);
         helpStage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(20);
@@ -2136,6 +2146,7 @@ public class GameView {
         root.getChildren().addAll(title, contentTextFlow, closeButton);
 
         Scene helpScene = new Scene(root);
+        helpScene.setFill(Color.TRANSPARENT);
         helpScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
         helpStage.setScene(helpScene);
@@ -2145,6 +2156,7 @@ public class GameView {
             Stage primaryStage = mainApp.getPrimaryStage();
             helpStage.setX(primaryStage.getX() + (primaryStage.getWidth() - helpStage.getWidth()) / 2);
             helpStage.setY(primaryStage.getY() + (primaryStage.getHeight() - helpStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
         });
 
         helpStage.showAndWait();
@@ -2161,6 +2173,11 @@ public class GameView {
             victoryMusicPlayer.stop();
             victoryMusicPlayer.dispose();
             victoryMusicPlayer = null;
+        }
+        if (defeatMusicPlayer != null) {
+            defeatMusicPlayer.stop();
+            defeatMusicPlayer.dispose();
+            defeatMusicPlayer = null;
         }
         if (combatChoiceStage != null) {
             combatChoiceStage.close();
