@@ -30,12 +30,13 @@ public class Player {
     private int strengthBonusTurnsLeft;
     private Weapon equippedWeapon;
     private Armor equippedArmor;
+    private int coins;
 
     public Player(int startX, int startY) {
         this.x = startX;
         this.y = startY;
-        this.health = 100;
-        this.maxHealth = 100;
+        this.health = 1000;
+        this.maxHealth = 1000;
         this.baseDamage = 15;
         this.level = 1;
         this.experience = 0;
@@ -48,9 +49,9 @@ public class Player {
         this.hasStrengthBonus = false;
         this.strengthBonusValue = 0;
         this.strengthBonusTurnsLeft = 0;
-
         this.equippedWeapon = null;
         this.equippedArmor = null;
+        this.coins = 100;
     }
 
     public void move(int dx, int dy) {
@@ -209,6 +210,23 @@ public class Player {
     public void processTurnEffects() {
         processPoisonTurn();
         processStrengthBonusTurn();
+    }
+    public int getCoins() {
+        return coins;
+    }
+
+    public void addCoins(int amount) {
+        if (amount > 0) {
+            this.coins += amount;
+        }
+    }
+
+    public boolean spendCoins(int amount) {
+        if (amount > 0 && this.coins >= amount) {
+            this.coins -= amount;
+            return true;
+        }
+        return false;
     }
 
     public boolean isAlive() {

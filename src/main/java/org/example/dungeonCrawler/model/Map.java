@@ -67,6 +67,7 @@ public class Map {
         placeSpecialRooms();
         addTreasures();
         addEventRooms();
+        addMerchant();
         populateRoomsWithEnemiesAndItems();
 
         if (this.startPosition == null) {
@@ -250,7 +251,6 @@ public class Map {
         }
     }
 
-    // --- POCZĄTEK POPRAWIONEJ METODY ---
     private void connectRooms() {
         if (roomCenters.size() < 2) return;
 
@@ -266,7 +266,6 @@ public class Map {
             Point connectTo = null;
             double minDistance = Double.MAX_VALUE;
 
-            // Znajdź najbliższą parę między połączonymi a niepołączonymi pokojami
             for (Point currentConnectedRoom : connected) {
                 for (Point currentUnconnectedRoom : unconnected) {
                     double distance = getDistance(currentConnectedRoom, currentUnconnectedRoom);
@@ -278,40 +277,32 @@ public class Map {
                 }
             }
 
-            // Sprawdzamy, czy udało się znaleźć parę do połączenia
             if (closest != null) {
                 createCorridor(connectTo, closest);
                 connected.add(closest);
                 unconnected.remove(closest);
             } else {
-                // Jeśli nie, przerywamy pętlę, aby uniknąć błędów
                 break;
             }
         }
         addExtraCorridors();
     }
-    // --- KONIEC POPRAWIONEJ METODY ---
 
 
-    // --- POCZĄTEK POPRAWIONEJ METODY ---
     private void createCorridor(Point from, Point to) {
         int currentX = from.x;
         int currentY = from.y;
 
         while (currentX != to.x || currentY != to.y) {
-            // Decydujemy, czy ruszyć się w poziomie czy w pionie
-            // Dążymy do zmniejszenia większej odległości
             boolean moveHorizontally = Math.abs(to.x - currentX) > Math.abs(to.y - currentY);
             if (Math.abs(to.x - currentX) == Math.abs(to.y - currentY)) {
-                moveHorizontally = random.nextBoolean(); // Jeśli odległości są równe, wybór jest losowy
+                moveHorizontally = random.nextBoolean();
             }
 
-            // Drążymy w ścianie w obecnym miejscu
             if (rooms[currentY][currentX].getType() == Room.RoomType.WALL) {
                 rooms[currentY][currentX].setType(Room.RoomType.ROOM);
             }
 
-            // Wykonujemy JEDEN ruch w wybranym kierunku
             if (moveHorizontally && currentX != to.x) {
                 currentX += Integer.signum(to.x - currentX);
             } else if (currentY != to.y) {
@@ -383,7 +374,7 @@ public class Map {
                     }
                 }
             }
-            if (farthest == null) { // Fallback, if startPosition was not in roomCenters
+            if (farthest == null) {
                 farthest = roomCenters.get(roomCenters.size()-1);
             }
 
@@ -531,7 +522,7 @@ public class Map {
                     continue;
                 }
                 Room.RoomType type = currentRoom.getType();
-                if (type == Room.RoomType.START || type == Room.RoomType.BOSS || type == Room.RoomType.TREASURE || type == Room.RoomType.WALL || type == Room.RoomType.EVENT) {
+                if (type == Room.RoomType.START || type == Room.RoomType.BOSS || type == Room.RoomType.TREASURE || type == Room.RoomType.WALL || type == Room.RoomType.EVENT || type == Room.RoomType.MERCHANT) {
                     continue;
                 }
                 boolean placedEnemy = false;
@@ -623,6 +614,38 @@ public class Map {
         }
         return new Point(startPosition.x, startPosition.y);
     }
+    private void addMerchant() {
+        if (!(this.width > 0 && this.height > 0) || roomCenters.size() < 5) {
+            return;
+        }
+
+        List<Point> availableRoomTiles = new ArrayList<>();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Room room = rooms[y][x];
+                if (room != null && room.getType() == Room.RoomType.ROOM) {
+                    boolean isStartTile = (this.startPosition != null && x == this.startPosition.x && y == this.startPosition.y);
+                    boolean isBossTile = (this.bossPosition != null && x == this.bossPosition.x && y == this.bossPosition.y);
+                    if (!isStartTile && !isBossTile) {
+                        availableRoomTiles.add(new Point(x,y));
+                    }
+                }
+            }
+        }
+
+        if (availableRoomTiles.isEmpty()) {
+            return;
+        }
+
+
+        Collections.shuffle(availableRoomTiles, random);
+        Point merchantPos = availableRoomTiles.get(0);
+        Room targetCell = getRoom(merchantPos.x, merchantPos.y);
+        if (targetCell != null && targetCell.getType() == Room.RoomType.ROOM) {
+            targetCell.setType(Room.RoomType.MERCHANT);
+        }
+    }
+
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }

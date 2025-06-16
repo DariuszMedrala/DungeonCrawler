@@ -20,7 +20,7 @@ public class Room {
     }
 
     public enum RoomType {
-        WALL, ROOM, START, BOSS, TREASURE, EVENT
+        WALL, ROOM, START, BOSS, TREASURE, EVENT, MERCHANT
     }
 
     private RoomType type;
@@ -61,6 +61,11 @@ public class Room {
                     this.item = createRandomItem();
                 }
                 break;
+            case MERCHANT:
+                description = "Stoisz przed straganem kupca, który oferuje różne przedmioty.";
+                this.enemy = null;
+                this.item = null;
+                break;
             default:
                 description = "Nic szczególnego.";
         }
@@ -94,7 +99,11 @@ public class Room {
     }
 
     public Item createRandomItem() {
-        if (Math.random() < 0.10) {
+        double chance = Math.random();
+        if (chance < 0.40) {
+            return new CoinPile();
+        }
+        if (chance < 0.50) {
             return new Key();
         }
 

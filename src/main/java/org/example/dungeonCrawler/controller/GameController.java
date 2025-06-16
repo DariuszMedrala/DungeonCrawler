@@ -2,9 +2,12 @@ package org.example.dungeonCrawler.controller;
 
 import javafx.application.Platform;
 import org.example.dungeonCrawler.model.*;
+import org.example.dungeonCrawler.model.items.CoinPile;
 import org.example.dungeonCrawler.model.monsters.*;
 import org.example.dungeonCrawler.view.GameView;
 import org.example.dungeonCrawler.model.items.Item;
+
+import java.util.Random;
 
 public class GameController {
     private Player player;
@@ -12,6 +15,7 @@ public class GameController {
     private Room currentRoom;
     private GameView gameView;
     private boolean inCombat;
+    private final Random random = new Random();
 
     public GameController() {
         initializeGame();
@@ -69,12 +73,24 @@ public class GameController {
             }
             return;
         }
+        if (currentRoom.getType() == Room.RoomType.MERCHANT) {
+            if (gameView != null) {
+                gameView.showMerchantDialog(player);
+            }
+            return;
+        }
         Enemy enemy = currentRoom.getEnemy();
         Item item = currentRoom.getItem();
 
         if (enemy != null && enemy.isAlive()) {
             startCombat(enemy);
-        } else if (currentRoom.getType() == Room.RoomType.TREASURE && !currentRoom.isTreasureOpened()) {
+        } else if (item instanceof CoinPile) {
+            int coinsFound = 1 + random.nextInt(5);
+            player.addCoins(coinsFound);
+            currentRoom.removeItem();
+            gameView.showCoinFoundDialog(coinsFound);
+            gameView.updateDisplay();
+        }else if (currentRoom.getType() == Room.RoomType.TREASURE && !currentRoom.isTreasureOpened()) {
             gameView.showTreasureDiscoveryDialog(item, currentRoom, player);
         } else if (item != null) {
             gameView.showItemDiscoveryDialog(item, currentRoom);
@@ -148,11 +164,20 @@ public class GameController {
             eventRoom.consumeEvent();
 
         } else if (eventRoom.getItem() != null) {
-            boolean pickedUp = gameView.showItemDiscoveryDialog(eventRoom.getItem(), eventRoom);
-            if (pickedUp) {
+            Item item = eventRoom.getItem();
+
+            if (item instanceof CoinPile) {
+                int coinsFound = 1 + random.nextInt(5);
+                player.addCoins(coinsFound);
+                gameView.showCoinFoundDialog(coinsFound);
                 eventRoom.consumeEvent();
             } else {
-                eventRoom.degradeEventToItemRoom();
+                boolean pickedUp = gameView.showItemDiscoveryDialog(item, eventRoom);
+                if (pickedUp) {
+                    eventRoom.consumeEvent();
+                } else {
+                    eventRoom.degradeEventToItemRoom();
+                }
             }
         }
         gameView.updateDisplay();

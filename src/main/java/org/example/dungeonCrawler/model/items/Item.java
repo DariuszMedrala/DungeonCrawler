@@ -7,7 +7,7 @@ public abstract class Item {
     protected ItemType type;
 
     public enum ItemType {
-        POTION, WEAPON, ARMOR, MISCELLANEOUS
+        POTION, WEAPON, ARMOR, MISCELLANEOUS,
     }
 
     public Item(String name, String description, ItemType type) {

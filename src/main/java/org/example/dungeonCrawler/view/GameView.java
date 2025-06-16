@@ -1,5 +1,5 @@
 package org.example.dungeonCrawler.view;
-
+import org.example.dungeonCrawler.model.items.*;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.scene.image.Image;
@@ -11,7 +11,6 @@ import javafx.scene.text.*;
 import javafx.stage.StageStyle;
 import org.example.dungeonCrawler.controller.GameController;
 import org.example.dungeonCrawler.model.*;
-import org.example.dungeonCrawler.model.items.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -31,8 +30,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.example.dungeonCrawler.Main;
 import org.example.dungeonCrawler.model.items.armors.Armor;
+import org.example.dungeonCrawler.model.items.armors.ChainMail;
+import org.example.dungeonCrawler.model.items.armors.DragonScaleArmor;
 import org.example.dungeonCrawler.model.items.keys.Key;
-import org.example.dungeonCrawler.model.items.potions.Potion;
+import org.example.dungeonCrawler.model.items.potions.*;
+import org.example.dungeonCrawler.model.items.weapons.DragonSword;
+import org.example.dungeonCrawler.model.items.weapons.SteelSword;
 import org.example.dungeonCrawler.model.items.weapons.Weapon;
 
 public class GameView {
@@ -331,6 +334,17 @@ public class GameView {
                     eventMarker.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 2, 0.0, 0, 1);");
                     cellNode.getChildren().add(eventMarker);
                 }
+                if (room.getType() == Room.RoomType.MERCHANT) {
+                    java.io.InputStream imageStream = getClass().getResourceAsStream("/images/merchant_icon.png");
+                    assert imageStream != null;
+                    Image merchantImage = new Image(imageStream);
+                    ImageView merchantIconView = new ImageView(merchantImage);
+                    merchantIconView.setFitWidth(18);
+                    merchantIconView.setFitHeight(18);
+                    merchantIconView.setPreserveRatio(true);
+                    merchantIconView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 2, 0.0, 0, 1);");
+                    cellNode.getChildren().add(merchantIconView);
+                }
                 else if (room.getEnemy() != null && room.getEnemy().isAlive() && !(x == player.getX() && y == player.getY())) {
                     String markerSymbol;
                     double markerFontSize;
@@ -339,7 +353,7 @@ public class GameView {
                     if (room.getType() == Room.RoomType.BOSS) {
                         markerSymbol = "🐉";
                         markerFontSize = 16;
-                        symbolFillColor = Color.YELLOW;
+                        symbolFillColor = Color.GREEN;
                     } else {
                         markerSymbol = "💀";
                         markerFontSize = 14;
@@ -358,6 +372,44 @@ public class GameView {
                 mapGrid.add(cellNode, x, y);
             }
         }
+    }
+
+    private HBox createLegendItemWithImage(Color color, String description, String imagePath) {
+        HBox legendItem = new HBox(12);
+        legendItem.setAlignment(Pos.CENTER_LEFT);
+        legendItem.setPadding(new Insets(4, 0, 4, 0));
+
+        StackPane symbolSwatchContainer = new StackPane();
+        symbolSwatchContainer.setPrefSize(28, 28);
+        symbolSwatchContainer.setMinSize(28, 28);
+
+        Region colorSwatch = new Region();
+        String swatchStyle = "-fx-background-color: " + toWebColor(color) + "; -fx-border-color: #444; -fx-border-width: 1px;";
+        colorSwatch.setStyle(swatchStyle);
+        symbolSwatchContainer.getChildren().add(colorSwatch);
+
+        try (java.io.InputStream imageStream = getClass().getResourceAsStream(imagePath)) {
+            if (imageStream != null) {
+                Image iconImage = new Image(imageStream);
+                ImageView iconView = new ImageView(iconImage);
+                iconView.setFitWidth(20);
+                iconView.setFitHeight(20);
+                iconView.setPreserveRatio(true);
+                iconView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 2, 0.0, 0, 1);");
+                symbolSwatchContainer.getChildren().add(iconView);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load legend image: " + imagePath);
+        }
+
+        legendItem.getChildren().add(symbolSwatchContainer);
+
+        Label descLabel = new Label(description);
+        descLabel.getStyleClass().add("legend-text");
+        HBox.setMargin(descLabel, new Insets(0, 0, 0, 5));
+
+        legendItem.getChildren().add(descLabel);
+        return legendItem;
     }
 
     private HBox createLegendItem(Color color, String description, String symbol, Color symbolColorOverride) {
@@ -416,7 +468,7 @@ public class GameView {
         root.getStyleClass().add("custom-dialog-background");
 
         ImageView eventImage;
-        eventImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/surprise.png"))));
+        eventImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/surprise.jpg"))));
 
 
         StackPane imageContainer = new StackPane();
@@ -489,7 +541,7 @@ public class GameView {
 
         root.getChildren().add(mainContentHBox);
 
-        Scene eventScene = new Scene(root, 1100, 470);
+        Scene eventScene = new Scene(root, 1200, 470);
         eventScene.setFill(Color.TRANSPARENT);
         eventScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         eventStage.setScene(eventScene);
@@ -925,6 +977,8 @@ public class GameView {
                     playButtonClickSound();
                     player.removeKey();
                     player.addItem(treasureItem);
+                    treasureRoom.removeItem();
+                    treasureRoom.setTreasureOpened(true);
                     treasureDiscoveryStage.setOnHidden(event -> {
                         showTreasureFoundDialog(treasureItem, mainApp.getPrimaryStage());
                         updateDisplay();
@@ -1459,6 +1513,7 @@ public class GameView {
 
         List<HBox> legendItems = new ArrayList<>();
         legendItems.add(createLegendItem(Color.rgb(40, 40, 40), "Smoczysko", "🐉", Color.GREEN));
+        legendItems.add(createLegendItemWithImage(Color.rgb(40, 40, 40), "Tajemnicza postać", "/images/merchant_icon.png"));
         legendItems.add(createLegendItem(Color.rgb(40, 40, 40), "Potwór", "💀", Color.WHITE));
         legendItems.add(createLegendItem(Color.rgb(40, 40, 40), "Niespodzianka", "❓", Color.RED));
         legendItems.add(createLegendItem(Color.GOLD, "Gracz (Normalny)", null, Color.BLACK));
@@ -1467,7 +1522,6 @@ public class GameView {
         legendItems.add(createLegendItem(Color.rgb(70, 130, 180), "Przedmiot", null, null));
         legendItems.add(createLegendItem(Color.rgb(87, 12, 89), "Skarb", null, null));
         legendItems.add(createLegendItem(Color.rgb(50, 150, 50), "Start", null, null));
-        legendItems.add(createLegendItem(Color.rgb(80, 80, 80), "Pusty Pokój", null, null));
         legendItems.add(createLegendItem(Color.rgb(20, 20, 20), "Ściana", null, null));
         legendItems.add(createLegendItem(Color.rgb(40, 40, 40), "Nieodwiedzone", null, null));
 
@@ -1891,7 +1945,8 @@ public class GameView {
                         "OBRAŻENIA: %d\n" +
                         "PANCERZ: %d\n" +
                         "BROŃ: %s\n" +
-                        "ZBROJA: %s",
+                        "ZBROJA: %s\n\n" +
+                        "NOVIGRADZKIE FLORENY: %d 💰",
                 player.getLevel(),
                 player.getHealth(),
                 player.getMaxHealth(),
@@ -1900,7 +1955,8 @@ public class GameView {
                 player.getDamage(),
                 player.getArmor(),
                 weaponInfo,
-                armorInfo
+                armorInfo,
+                player.getCoins()
         );
         playerStatsLabel.setText(stats);
 
@@ -1970,7 +2026,7 @@ public class GameView {
         contentRoot.getStyleClass().add("custom-dialog-background");
 
         ImageView dialogImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
-        dialogImage.setFitHeight(400);
+        dialogImage.setFitWidth(300);
         dialogImage.setPreserveRatio(true);
         StackPane imageContainer = new StackPane(dialogImage);
         imageContainer.getStyleClass().add(imageStyleClass);
@@ -2058,13 +2114,15 @@ public class GameView {
         if (combatChoiceStage != null && combatChoiceStage.isShowing()) combatChoiceStage.close();
         if (combatResultStage != null && combatResultStage.isShowing()) combatResultStage.close();
         Platform.runLater(() -> {
-            String content = playerName + ", to tak się kończy, jak się łazi po lochach bez rozumu.\n" +
-                    "Liczyłeś na chwałę? No, nie tym razem. Twoje kości będą dobrą strawą dla szczurów.\n\n" +
-                    "A tyle gadałem, żebyś uważał. Ale dobra, marny wiedźmin ze złymi wyborami.\n" +
-                    "Wracasz do nauki na sesję? Albo może spróbujesz znowu, z nadzieją na mniej żałosny koniec?\n" +
-                    "Bo przecież nawet z trupa da się wycisnąć jeszcze trochę pecha.";
+            String content = "(Ciężkie westchnięcie) Wiedziałem. Po prostu wiedziałem, że tak to się skończy.\n" +
+                    "Zawsze pakowałeś się głową naprzód tam, gdzie nawet demony bały się zaglądać.\n\n" +
+                    "I wiesz co jest najgorsze? Że przez chwilę, jedną małą, parszywą chwilę, myślałem, że ci się uda.\n" +
+                    "Że ten jeden uparty osioł faktycznie dojdzie na sam koniec. Głupi ja.\n" +
+                    "A teraz co? Zostawiłeś mnie samego z tym całym bałaganem. Dzięki, naprawdę.\n\n" +
+                    "Dobra, koniec tych sentymentów, bo jeszcze pomyślisz, że mi zależy.\n" +
+                    "Gotów na kolejną rundę upokorzeń? Czy może wolisz zostać tu na zawsze i robić za dekorację?";
 
-            showEndGameDialog("KIEPSKIE ZAKOŃCZENIE", "💀 NO I KLOPS, UMARŁEŚ! 💀", content,
+            showEndGameDialog("KIEPSKIE ZAKOŃCZENIE", "💀 MARNA ŚMIERĆ! 💀", content,
                     "/images/game_over.png", "HERE WE GO AGAIN!", "custom-frame-red", "custom-frame-red", "game-over-text", "game-over-text-bold");
         });
     }
@@ -2161,6 +2219,322 @@ public class GameView {
 
         helpStage.showAndWait();
     }
+
+    public void showCoinFoundDialog(int amount) {
+        Stage coinStage = new Stage();
+        coinStage.initModality(Modality.APPLICATION_MODAL);
+        coinStage.initOwner(mainApp.getPrimaryStage());
+        coinStage.setTitle("Znaleziono Monety!");
+        coinStage.setResizable(false);
+        coinStage.initStyle(StageStyle.TRANSPARENT);
+        coinStage.initModality(Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(25));
+        root.setAlignment(Pos.CENTER);
+        root.getStyleClass().add("custom-dialog-background");
+
+        ImageView coinImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/coins_found.png"))));
+        coinImage.setFitHeight(350);
+        coinImage.setPreserveRatio(true);
+
+        StackPane imageContainer = new StackPane(coinImage);
+        imageContainer.getStyleClass().add("image-frame");
+        imageContainer.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        VBox textAndButtonsVBox = new VBox(15);
+        textAndButtonsVBox.setAlignment(Pos.CENTER);
+        textAndButtonsVBox.setPadding(new Insets(0, 20, 30, 20));
+
+        Label title = new Label("💰 ZNALAZŁEŚ MONETY! 💰");
+        title.getStyleClass().add("about-title");
+        VBox.setMargin(title, new Insets(0, 0, 10, 0));
+
+        Label contentLabel = new Label("No proszę, proszę... Co my tu mamy? Zguba jakiegoś zapominalskiego alchemika,\n" +
+                "czy może łapówka dla trolla, który się rozmyślił w połowie mostu?\n" +
+                "Monety! I to nie byle jakie – błyszczą, jakby dopiero co z mennicy wypadły!\n" +
+                "No, może trochę zakurzone i śmierdzą stęchlizną, ale złoto to złoto.\n" +
+                "Zgarniasz wszystko jak leci, zanim jakiś inny szczęściarz tu trafi.\n" +
+                "W końcu, ile razy trafia się sakiewka leżąca odłogiem?\n\n" +
+                "ZDOBYWASZ " + amount + " NOVIGRADZKIE FLORENY\n");
+        contentLabel.getStyleClass().add("about-content");
+        contentLabel.setTextAlignment(TextAlignment.CENTER);
+        contentLabel.setWrapText(true);
+
+        Button okButton = new Button("Zabierz");
+        okButton.getStyleClass().add("dialog-button-primary");
+        okButton.setOnAction(e -> {
+            playButtonClickSound();
+            coinStage.close();
+        });
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        textAndButtonsVBox.getChildren().addAll(title, contentLabel, spacer, okButton);
+        HBox mainContentHBox = new HBox(10);
+        mainContentHBox.setAlignment(Pos.CENTER);
+        mainContentHBox.getChildren().addAll(imageContainer, textAndButtonsVBox);
+        HBox.setHgrow(textAndButtonsVBox, Priority.ALWAYS);
+
+        root.getChildren().add(mainContentHBox);
+
+        Scene scene = new Scene(root, 1000, 520);
+        scene.setFill(Color.TRANSPARENT);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        coinStage.setScene(scene);
+        coinStage.sizeToScene();
+
+        coinStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            coinStage.setX(primaryStage.getX() + (primaryStage.getWidth() - coinStage.getWidth()) / 2);
+            coinStage.setY(primaryStage.getY() + (primaryStage.getHeight() - coinStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
+        });
+
+        coinStage.showAndWait();
+    }
+
+    public void showMerchantDialog(Player player) {
+        Stage introductoryStage = new Stage();
+        introductoryStage.initModality(Modality.APPLICATION_MODAL);
+        introductoryStage.initOwner(mainApp.getPrimaryStage());
+        introductoryStage.setTitle("Tajemniczy Kupiec");
+        introductoryStage.setResizable(false);
+        introductoryStage.initStyle(StageStyle.TRANSPARENT);
+
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(25));
+        root.setAlignment(Pos.CENTER);
+        root.getStyleClass().add("custom-dialog-background");
+        ImageView merchantImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/merchant.png"))));
+        merchantImage.setFitHeight(400);
+        merchantImage.setPreserveRatio(true);
+
+        StackPane imageContainer = new StackPane(merchantImage);
+        imageContainer.getStyleClass().add("image-frame");
+        imageContainer.setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+        VBox textAndButtonsVBox = new VBox(15);
+        textAndButtonsVBox.setAlignment(Pos.CENTER);
+        textAndButtonsVBox.setPadding(new Insets(0, 20, 30, 20));
+
+        Label title = new Label("SHUPE - HANDLARZ?");
+        title.getStyleClass().add("about-title");
+        VBox.setMargin(title, new Insets(0, 0, 10, 0));
+
+        Label contentLabel = new Label(
+                "A to co? Ogr, co się w kupca bawi. Chyba za długo na słońcu siedział i mu się klepki \n" +
+                        "w tej wielkiej łepetynie poluzowały. Uważaj, bo zamiast reszty wyda ci lepę na ucho.\n\n" +
+
+                        "\"Ty. Wiedźmin. Patrz.\" – odzywa się stwór głosem, który brzmi jak tarcie o siebie dwóch głazów.\n" +
+                        "Wskazuje wielkim paluchem na rozłożone na ziemi towary. – \"Shupe mieć dużo rzeczy. Dobre rzeczy.\n" +
+                        "Ty dać żółte kamienie, Shupe tobie dać. Chcesz patrzeć? Kupować?\"\n\n" +
+
+                        "Słyszysz go? 'Żółte kamienie'. Ten tytan intelektu nawet nie wie, co sprzedaje.\n" +
+                        "Możesz zrobić interes życia, albo stracić łeb, bo źle policzysz. \n" +
+                        "No, gadasz z nim, czy czekasz aż cię zlicytuje jakiemuś trollowi za beczkę grochu?"
+        );
+        contentLabel.getStyleClass().add("about-content");
+        contentLabel.setTextAlignment(TextAlignment.CENTER);
+        contentLabel.setWrapText(true);
+
+        Button tradeButton = new Button("HANDLUJ");
+        tradeButton.getStyleClass().add("dialog-button-primary");
+        tradeButton.setOnAction(e -> {
+            playButtonClickSound();
+            introductoryStage.close();
+            Platform.runLater(() -> showActualMerchantStore(player));
+        });
+
+        Button leaveButton = new Button("WYJDŹ");
+        leaveButton.getStyleClass().add("dialog-button-secondary");
+        leaveButton.setOnAction(e -> {
+            playButtonClickSound();
+            introductoryStage.close();
+        });
+
+        HBox buttonContainer = new HBox(20, tradeButton, leaveButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        textAndButtonsVBox.getChildren().addAll(title, contentLabel, spacer, buttonContainer);
+        HBox mainContentHBox = new HBox(10);
+        mainContentHBox.setAlignment(Pos.CENTER);
+        mainContentHBox.getChildren().addAll(imageContainer, textAndButtonsVBox);
+        HBox.setHgrow(textAndButtonsVBox, Priority.ALWAYS);
+
+        root.getChildren().add(mainContentHBox);
+
+        Scene scene = new Scene(root, 1200, 520);
+        scene.setFill(Color.TRANSPARENT);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        introductoryStage.setScene(scene);
+        introductoryStage.sizeToScene();
+
+        introductoryStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            introductoryStage.setX(primaryStage.getX() + (primaryStage.getWidth() - introductoryStage.getWidth()) / 2);
+            introductoryStage.setY(primaryStage.getY() + (primaryStage.getHeight() - introductoryStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(root, null);
+        });
+
+        introductoryStage.showAndWait();
+    }
+
+    private void showActualMerchantStore(Player player) {
+        Stage merchantStage = new Stage();
+        merchantStage.initModality(Modality.APPLICATION_MODAL);
+        merchantStage.initOwner(mainApp.getPrimaryStage());
+        merchantStage.setTitle("Kupiec");
+        merchantStage.setResizable(false);
+        merchantStage.initStyle(StageStyle.TRANSPARENT);
+
+        HBox mainLayout = new HBox(15);
+        mainLayout.getStyleClass().add("custom-dialog-background");
+        mainLayout.setPadding(new Insets(20));
+        mainLayout.setAlignment(Pos.CENTER);
+        ImageView merchantImage = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/merchant.png"))));
+        merchantImage.setFitHeight(400);
+        merchantImage.setPreserveRatio(true);
+
+        StackPane imageContainer = new StackPane(merchantImage);
+        imageContainer.getStyleClass().add("image-frame");
+        imageContainer.setAlignment(Pos.CENTER);
+        imageContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        VBox storePanel = new VBox(15);
+        storePanel.setAlignment(Pos.CENTER);
+
+        Label title = new Label("📜 SKŁADZIK SHUPE'A 📜");
+        title.getStyleClass().add("about-title");
+        Label playerCoinsLabel = new Label("TWOJE OSZCZĘDNOŚCI EMERYTALNE: " + player.getCoins() + " 💰");
+        playerCoinsLabel.getStyleClass().add("status-effects-green");
+
+        VBox headerBox = new VBox(5, title, playerCoinsLabel);
+        headerBox.setAlignment(Pos.CENTER);
+
+        java.util.Map<Item, Integer> stock = new HashMap<>();
+        stock.put(new SmallHealthPotion(), 25);
+        stock.put(new MediumHealthPotion(), 50);
+        stock.put(new AntidotePotion(), 25);
+        stock.put(new StrengthPotion(), 25);
+        stock.put(new DragonSword(), 100);
+        stock.put(new DragonScaleArmor(), 100);
+
+        VBox itemsForSaleContainer = new VBox(10);
+        itemsForSaleContainer.setPadding(new Insets(10));
+
+        List<Runnable> buttonUpdaters = new ArrayList<>();
+
+        for (java.util.Map.Entry<Item, Integer> entry : stock.entrySet()) {
+            Item item = entry.getKey();
+            Integer price = entry.getValue();
+
+            boolean isUnique = !(item instanceof Potion);
+            if (isUnique && player.getInventory().stream().anyMatch(invItem -> invItem.getName().equals(item.getName()))) {
+                continue;
+            }
+
+            HBox itemRow = new HBox(10);
+            itemRow.setAlignment(Pos.CENTER_LEFT);
+
+            Label itemLabel = new Label(getItemIcon(item) + " " + item.getName() + " (" + price + " 💰)");
+            itemLabel.getStyleClass().add("inventory");
+            itemLabel.setPrefWidth(350);
+            HBox buttonsBox = new HBox(5);
+            buttonsBox.setAlignment(Pos.CENTER_RIGHT);
+
+            Button buyButton = new Button("Kup");
+            buyButton.getStyleClass().add("dialog-button-primary");
+            buttonsBox.getChildren().add(buyButton);
+            HBox.setHgrow(buttonsBox, Priority.ALWAYS);
+            itemRow.getChildren().addAll(itemLabel, buttonsBox);
+
+            Runnable updateButtonState = () -> {
+                if (player.isInventoryFull()) {
+                    buyButton.setDisable(true);
+                    buyButton.setText("Pełny Ekwipunek");
+                } else if (player.getCoins() < price) {
+                    buyButton.setDisable(true);
+                    buyButton.setText("Brak środków");
+                } else {
+                    buyButton.setDisable(false);
+                    buyButton.setText("Kup");
+                }
+            };
+
+            buttonUpdaters.add(updateButtonState);
+
+            buyButton.setOnAction(e -> {
+                playButtonClickSound();
+                if (player.getCoins() >= price && !player.isInventoryFull()) {
+                    player.spendCoins(price);
+                    Item purchasedItem = createNewItemInstance(item);
+                    if (purchasedItem != null) {
+                        player.addItem(purchasedItem);
+                    }
+                    playerCoinsLabel.setText("Twoje monety: " + player.getCoins() + " 💰");
+                    updateDisplay();
+
+                    if (isUnique) {
+                        itemsForSaleContainer.getChildren().remove(itemRow);
+                        buttonUpdaters.remove(updateButtonState);
+                    }
+
+                    for (Runnable updater : buttonUpdaters) {
+                        updater.run();
+                    }
+                }
+            });
+
+            itemsForSaleContainer.getChildren().add(itemRow);
+        }
+
+        for (Runnable updater : buttonUpdaters) {
+            updater.run();
+        }
+
+        ScrollPane scrollPane = new ScrollPane(itemsForSaleContainer);
+        scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        Button closeButton = new Button("Wyjdź");
+        closeButton.getStyleClass().add("dialog-button-secondary");
+        closeButton.setOnAction(e -> {
+            playButtonClickSound();
+            merchantStage.close();
+            updateDisplay();
+        });
+
+        storePanel.getChildren().addAll(headerBox, scrollPane, closeButton);
+        mainLayout.getChildren().addAll(imageContainer, storePanel);
+        HBox.setHgrow(storePanel, Priority.ALWAYS);
+
+        Scene merchantScene = new Scene(mainLayout, 900, 600);
+        merchantScene.setFill(Color.TRANSPARENT);
+        merchantScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        merchantStage.setScene(merchantScene);
+
+        merchantStage.setOnShown(e -> {
+            Stage primaryStage = mainApp.getPrimaryStage();
+            merchantStage.setX(primaryStage.getX() + (primaryStage.getWidth() - merchantStage.getWidth()) / 2 - 200);
+            merchantStage.setY(primaryStage.getY() + (primaryStage.getHeight() - merchantStage.getHeight()) / 2);
+            AnimationUtil.playFadeInTransition(mainLayout, null);
+        });
+
+        merchantStage.showAndWait();
+    }
+    private Item createNewItemInstance(Item item) {
+        if (item instanceof SmallHealthPotion) return new SmallHealthPotion();
+        if (item instanceof MediumHealthPotion) return new MediumHealthPotion();
+        if (item instanceof AntidotePotion) return new AntidotePotion();
+        if (item instanceof DragonSword) return new DragonSword();
+        if (item instanceof DragonScaleArmor) return new DragonScaleArmor();
+        if (item instanceof StrengthPotion) return new StrengthPotion();
+        return null;
+    }
+
 
 
     public void disposeResources() {

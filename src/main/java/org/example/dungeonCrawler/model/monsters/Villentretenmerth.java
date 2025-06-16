@@ -14,11 +14,13 @@ public class Villentretenmerth extends Enemy {
             "I wiesz ile złota może mieć w swojej komnacie?! Ale... chwila. To chyba TEN smok.\n" +
             "Wiedźminie, mamy problem. Kodeks mówi 'nie zabijać'.\n" +
             "Zdrowy rozsądek mówi 'SPIEPRZAJ'. A chciwość szepcze... 'pomyśl o tej chwale'.\n" +
-            "To jest ostatni test. Jesteś wiedźminem... czy tylko rzeźnikiem w pogoni za kasą?\n DECYDUJ BO ZARAZ ON ZADECYDUJE ZA NAS!\n\n";
+            "To jest ostatni test. Jesteś wiedźminem... czy tylko rzeźnikiem w pogoni za kasą?\n"+
+            "DECYDUJ BO ZARAZ ON ZADECYDUJE ZA NAS!\n\n";
 
     private static final String deathText = "I... cisza. Zabiłeś legendę, wiedźminie. Nie ma fajerwerków, nie ma okrzyków radości.\n" +
             "Spójrz na niego. To nie był potwór. To była... historia. A my ją właśnie wymazaliśmy z tego świata.\n" +
-            "Cóż... Skoro już to zrobiłeś, bierz co twoje. Łuski, zęby, serce. Będziemy bogaci. Najbogatsi i najbardziej przeklęci na całym kontynencie.\n" +
+            "Cóż... Skoro już to zrobiłeś, bierz co twoje. Łuski, zęby, serce.\n"+ "" +
+            "Będziemy bogaci. Najbogatsi i najbardziej przeklęci na całym kontynencie.\n" +
             "To koniec twojej ścieżki. Mam nadzieję, że było warto. Bo odwrotu z tej drogi już nie ma.\n\n" +
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
