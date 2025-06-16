@@ -51,7 +51,7 @@ public class Player {
         this.strengthBonusTurnsLeft = 0;
         this.equippedWeapon = null;
         this.equippedArmor = null;
-        this.coins = 100;
+        this.coins = 50;
     }
 
     public void move(int dx, int dy) {
