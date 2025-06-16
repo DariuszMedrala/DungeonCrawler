@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.example</groupId>
   <artifactId>dungeon-crawler</artifactId>
-  <name>Dungeon Crawler</name>
-  <version>1.0-SNAPSHOT</version>
+  <name>Wiedzmin - Lochy Novigradu</name>
+  <version>1.0.0</version>
   <description>A simple dungeon crawler game built with JavaFX</description>
   <build>
     <resources>
@@ -44,6 +44,46 @@
             <id>default-cli</id>
             <configuration>
               <mainClass>org.example.dungeonCrawler.Main</mainClass>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>jpackage</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>jpackage</executable>
+              <workingDirectory>${project.build.directory}</workingDirectory>
+              <arguments>
+                <argument>--type</argument>
+                <argument>exe</argument>
+                <argument>--name</argument>
+                <argument>${project.name}</argument>
+                <argument>--dest</argument>
+                <argument>installers</argument>
+                <argument>--input</argument>
+                <argument>.</argument>
+                <argument>--main-jar</argument>
+                <argument>${project.build.finalName}.jar</argument>
+                <argument>--main-class</argument>
+                <argument>org.example.dungeonCrawler.Launcher</argument>
+                <argument>--app-version</argument>
+                <argument>${project.version}</argument>
+                <argument>--vendor</argument>
+                <argument>TwojaFirma</argument>
+                <argument>--icon</argument>
+                <argument>${project.basedir}/src/main/resources/packaging/witcher_icon.ico</argument>
+                <argument>--win-shortcut</argument>
+                <argument>--win-menu</argument>
+              </arguments>
             </configuration>
           </execution>
         </executions>

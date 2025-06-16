@@ -278,8 +278,8 @@ public class GameView {
                         backgroundColor = Color.GREEN;
                         borderColor = Color.DARKGREEN;
                     } else if (player.hasStrengthBonus()) {
-                        backgroundColor = Color.ORANGE;
-                        borderColor = Color.DARKORANGE;
+                        backgroundColor = Color.RED;
+                        borderColor = Color.DARKRED;
                     } else {
                         backgroundColor = Color.GOLD;
                         borderColor = Color.ORANGERED;
@@ -1223,10 +1223,13 @@ public class GameView {
 
         Player player = controller.getPlayer();
         String contentText = String.format(
-                "Cholera, %s! Nie dość, że wciąż żyjesz, to jeszcze awansowałeś na POZIOM %d!\n" +
-                        "Wszystkie statystyki skaczą w górę – siła, obrona, nawet charyzma! Ale spokojnie,\n" +
-                        "twój kumpel w spodniach pewnie wciąż ma kryzys wieku średniego. Nie da się mieć wszystkiego.\n" +
-                        "No, teraz to już w ogóle nikt nie będzie się śmiał z twojej zbroi, choć z reszty… to inna spraw.",
+                "A to ci niespodzianka! %s, wlazłeś na POZIOM %d. Co za wyczyn!\n" +
+                        "Twoje uderzenie ma teraz siłę solidnego kichnięcia,\n" +
+                        "a pancerz wytrzyma jedno splunięcie ghula więcej. \n\n" +
+                        "Nie ciesz się tak, to tylko gra pozorów, żebyś poczuł się lepiej,\n" +
+                        "zanim jakiś przebrzydły nekker urwie ci łeb dla zabawy.\n" +
+                        "Większy poziom oznacza tylko, że spadasz z wyższego konia.\n\n" +
+                        "Ale hej, gratulacje! Przynajmniej umrzesz z ładniejszymi cyferkami w statystykach.\n",
                 playerName, player.getLevel()
         );
 
@@ -1255,7 +1258,7 @@ public class GameView {
 
         root.getChildren().addAll(mainContentHBox);
 
-        Scene scene = new Scene(root, 750, 500);
+        Scene scene = new Scene(root, 900, 500);
         scene.setFill(Color.TRANSPARENT);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
@@ -1850,7 +1853,7 @@ public class GameView {
         HBox.setHgrow(textAndButtonsVBox, Priority.ALWAYS);
         root.getChildren().addAll(mainContentHBox);
 
-        Scene scene = new Scene(root, 800, 500);
+        Scene scene = new Scene(root, 900, 500);
         scene.setFill(Color.TRANSPARENT);
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
