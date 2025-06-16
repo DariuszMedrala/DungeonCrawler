@@ -100,28 +100,45 @@ public class Room {
 
     public Item createRandomItem() {
         double chance = Math.random();
-        if (chance < 0.40) {
+
+        if (chance < 0.50) {
             return new CoinPile();
         }
-        if (chance < 0.50) {
-            return new Key();
+
+        if (chance < 0.65) {
+            return new SmallHealthPotion();
         }
 
-        Item[] items = {
-                new SmallHealthPotion(),
-                new AntidotePotion(),
-                new MediumHealthPotion(),
-                new StrengthPotion(),
-                new BattleAxe(),
-                new ChainMail(),
-                new BoneShield(),
-                new PlateArmor(),
-                new SilverSword(),
-                new SteelSword(),
-                new IronSword(),
-                new LeatherArmor()
-        };
-        return items[(int) (Math.random() * items.length)];
+        if (chance < 0.90) {
+            Item[] commonItems = {
+                    new Key(),
+                    new AntidotePotion(),
+                    new BoneShield(),
+                    new LeatherArmor(),
+                    new IronSword()
+
+            };
+            return commonItems[(int) (Math.random() * commonItems.length)];
+        }
+
+        if (chance < 0.975) {
+            Item[] rareItems = {
+                    new MediumHealthPotion(),
+                    new StrengthPotion(),
+                    new SteelSword(),
+                    new ChainMail()
+            };
+            return rareItems[(int) (Math.random() * rareItems.length)];
+        }
+
+        else {
+            Item[] epicItems = {
+                    new BattleAxe(),
+                    new PlateArmor(),
+                    new SilverSword()
+            };
+            return epicItems[(int) (Math.random() * epicItems.length)];
+        }
     }
 
 
