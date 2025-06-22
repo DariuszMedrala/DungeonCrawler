@@ -19,7 +19,7 @@ public class Vypper extends Enemy {
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
     public Vypper() {
-        super("Vypper", 30, 10, 30, imagePath, encounterText, deathText);
+        super("Vypper", 40, 15, 30, imagePath, encounterText, deathText, "Możliwość zatrucia przeciwnika przy ataku");
     }
 
     @Override

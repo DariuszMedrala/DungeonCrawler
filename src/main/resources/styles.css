@@ -666,3 +666,40 @@
     -fx-font-family: 'Cinzel', serif;
 }
 
+
+.custom-dialog-background .damage-text {
+    -fx-font: bold 28px "Cinzel", serif;
+    -fx-text-fill: #b40000; /* Czerwony */
+    -fx-stroke: black;
+    -fx-stroke-width: 1.5px;
+}
+
+.custom-dialog-background .crit-text {
+    -fx-font: bold 36px "Cinzel", serif;
+    -fx-text-fill: #ce1515;
+    -fx-stroke-width: 2px;
+}
+
+.custom-dialog-background .heal-text {
+    -fx-font: bold 28px "Cinzel", serif;
+    -fx-text-fill: #09e5ca;
+    -fx-stroke: black;
+    -fx-stroke-width: 1.5px;
+}
+
+.custom-dialog-background .info-text {
+    -fx-font: bold 26px "Cinzel", serif;
+    -fx-text-fill: #ffaa00;
+    -fx-stroke: black;
+    -fx-stroke-width: 1.5px;
+}
+
+.turn-indicator-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, #8b0000, 4, 0.8, 2, 2);
+    -fx-font-family: 'Cinzel', serif;
+}
+
+

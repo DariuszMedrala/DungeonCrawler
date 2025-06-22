@@ -10,10 +10,11 @@ public class Enemy {
     private final String encounterText;
     private final String deathText;
     public String lastAttackType = "NORMAL";
+    private String specialAbility;
 
     private int stunnedTurns = 0;
 
-    public Enemy(String name, int health, int damage, int experienceReward, String imagePath, String encounterText, String deathText) {
+    public Enemy(String name, int health, int damage, int experienceReward, String imagePath, String encounterText, String deathText, String specialAbility) {
         this.name = name;
         this.health = health;
         this.maxHealth = health;
@@ -22,6 +23,7 @@ public class Enemy {
         this.imagePath = imagePath;
         this.encounterText = encounterText;
         this.deathText = deathText;
+        this.specialAbility = specialAbility;
     }
 
     public int attack() {
@@ -62,4 +64,12 @@ public class Enemy {
     public String getImagePath() { return imagePath; }
     public String getEncounterText() { return encounterText; }
     public String getDeathText() { return deathText; }
+
+    public String getSpecialAbility() {
+        return specialAbility;
+    }
+
+    public void setSpecialAbility(String specialAbility) {
+        this.specialAbility = specialAbility;
+    }
 }

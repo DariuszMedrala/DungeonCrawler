@@ -19,6 +19,7 @@ public class GameController {
     private final Random random = new Random();
 
     private Enemy currentEnemy = null;
+    private boolean isActionInProgress = false;
 
     public GameController() {
         initializeGame();
@@ -104,13 +105,30 @@ public class GameController {
     public void beginInteractiveCombat() {
         if (gameView != null && currentEnemy != null) {
             gameView.showInteractiveCombatScreen(currentEnemy);
+            gameView.setActionButtonsDisabled(true);
+            isActionInProgress = true;
+
+            PauseTransition initialDelay = new PauseTransition(Duration.millis(750));
+            initialDelay.setOnFinished(e -> {
+                gameView.showTurnIndicator("TWOJA TURA", () -> {
+                    gameView.setActionButtonsDisabled(false);
+                    isActionInProgress = false;
+                });
+            });
+            initialDelay.play();
         }
     }
 
     public void handlePlayerAction(String actionType) {
+        if (isActionInProgress) {
+            return;
+        }
         if (currentEnemy == null || !player.isAlive() || !currentEnemy.isAlive()) return;
 
-        int playerDamage = 0;
+        isActionInProgress = true;
+        gameView.setActionButtonsDisabled(true);
+
+        int playerDamage;
         int actualDamage;
 
         switch (actionType) {
@@ -120,10 +138,13 @@ public class GameController {
 
                 if (actualDamage == 0 && playerDamage > 0) {
                     gameView.updateCombatLog(currentEnemy.getName() + " zręcznie unika Twojego ciosu!", "enemy-log-miss");
+                    gameView.showFloatingText("UNIK", "ENEMY", "INFO");
                 } else if (actualDamage < playerDamage) {
                     gameView.updateCombatLog(currentEnemy.getName() + " blokuje część ataku, otrzymując tylko " + actualDamage + " pkt. obrażeń!", "enemy-log");
+                    gameView.showFloatingText(String.valueOf("-" + actualDamage), "ENEMY", "DAMAGE");
                 } else {
                     gameView.updateCombatLog("Zadajesz " + actualDamage + " pkt. obrażeń!", "player-log");
+                    gameView.showFloatingText(String.valueOf("-"  + actualDamage), "ENEMY", "DAMAGE");
                 }
                 break;
 
@@ -134,13 +155,17 @@ public class GameController {
 
                     if (actualDamage == 0 && playerDamage > 0) {
                         gameView.updateCombatLog("Krytyczny cios, ale " + currentEnemy.getName() + " zdołał go uniknąć!", "enemy-log-miss");
+                        gameView.showFloatingText("UNIK", "ENEMY", "INFO");
                     } else if (actualDamage < playerDamage) {
                         gameView.updateCombatLog("Mocny cios! " + currentEnemy.getName() + " blokuje go, otrzymując " + actualDamage + " pkt. obrażeń krytycznych!", "player-log-crit");
+                        gameView.showFloatingText(String.valueOf("-" + actualDamage), "ENEMY", "CRIT");
                     } else {
                         gameView.updateCombatLog("Trafienie krytyczne! Zadajesz " + actualDamage + " pkt. obrażeń!", "player-log-crit");
+                        gameView.showFloatingText(String.valueOf("-"  + actualDamage), "ENEMY", "CRIT");
                     }
                 } else {
                     gameView.updateCombatLog("Atak krytyczny spudłował!", "player-log-miss");
+                    gameView.showFloatingText("SPUDŁOWAŁ", "ENEMY", "INFO");
                 }
                 break;
             case "IGNI":
@@ -148,6 +173,8 @@ public class GameController {
                 int igniDamage = 35 + random.nextInt(11);
                 int actualIgniDamage = currentEnemy.takeDamage(igniDamage);
                 player.setUsedIgni(true);
+
+                gameView.showFloatingText(String.valueOf("-"  + actualIgniDamage), "ENEMY", "DAMAGE");
 
                 if (actualIgniDamage == 0) {
                     gameView.updateCombatLog(currentEnemy.getName() + " unika płomieni znaku Igni!", "enemy-log-miss");
@@ -164,6 +191,12 @@ public class GameController {
                 currentEnemy.stun(1);
                 player.setUsedAard(true);
 
+                gameView.showFloatingText(String.valueOf("-"  + actualAardDamage), "ENEMY", "DAMAGE");
+
+                PauseTransition stunTextDelay = new PauseTransition(Duration.millis(700));
+                stunTextDelay.setOnFinished(e -> gameView.showFloatingText("OGŁUSZONY", "ENEMY", "INFO"));
+                stunTextDelay.play();
+
                 String stunMessage = " i ogłusza go na 1 turę!";
                 if (actualAardDamage == 0) {
                     gameView.updateCombatLog(currentEnemy.getName() + " unika fali uderzeniowej Aard, ale i tak zostaje ogłuszony!", "enemy-log-miss");
@@ -178,12 +211,14 @@ public class GameController {
                 player.activateQuen();
                 player.setUsedQuen(true);
                 gameView.updateCombatLog("Tworzysz tarczę Quen, która zablokuje następny atak.", "player-log-sign");
+                gameView.showFloatingText("QUEN", "PLAYER", "HEAL");
                 break;
             case "AKSJI":
                 if (player.hasUsedAksji()) break;
                 currentEnemy.stun(2);
                 player.setUsedAksji(true);
                 gameView.updateCombatLog("Używasz znaku Aksji, paraliżuje wroga na 2 tury!", "player-log-sign");
+                gameView.showFloatingText("OGŁUSZONY", "ENEMY", "INFO");
                 break;
         }
 
@@ -196,26 +231,30 @@ public class GameController {
             return;
         }
 
-        PauseTransition enemyTurnDelay = new PauseTransition(Duration.seconds(1.0));
+        PauseTransition enemyTurnDelay = new PauseTransition(Duration.seconds(2.5));
         enemyTurnDelay.setOnFinished(event -> {
+            gameView.showTurnIndicator("TURA PRZECIWNIKA", () -> {
+                if (currentEnemy.isStunned()) {
+                    gameView.updateCombatLog(currentEnemy.getName() + " jest ogłuszony i nie może się ruszyć.", "enemy-log-miss");
+                    currentEnemy.decrementStun();
+                } else {
+                    handleEnemyCounterAttack(currentEnemy);
+                }
 
-            if (currentEnemy.isStunned()) {
-                gameView.updateCombatLog(currentEnemy.getName() + " jest ogłuszony i nie może się ruszyć.", "enemy-log-miss");
-                currentEnemy.decrementStun();
-            } else {
-                handleEnemyCounterAttack(currentEnemy);
-            }
+                player.processTurnEffects();
+                gameView.refreshCombatScreenState(currentEnemy);
 
-            player.processTurnEffects();
-            gameView.refreshCombatScreenState(currentEnemy);
-
-            if (!player.isAlive()) {
-                PauseTransition gameOverDelay = new PauseTransition(Duration.seconds(1.2));
-                gameOverDelay.setOnFinished(e -> gameOver());
-                gameOverDelay.play();
-            } else {
-                gameView.enableActionButtons();
-            }
+                if (!player.isAlive()) {
+                    PauseTransition gameOverDelay = new PauseTransition(Duration.seconds(1.2));
+                    gameOverDelay.setOnFinished(e -> gameOver());
+                    gameOverDelay.play();
+                } else {
+                    gameView.showTurnIndicator("TWOJA TURA", () -> {
+                        gameView.setActionButtonsDisabled(false);
+                        isActionInProgress = false;
+                    });
+                }
+            });
         });
         enemyTurnDelay.play();
     }
@@ -228,6 +267,7 @@ public class GameController {
         gameView.closeCombatScreen();
         currentRoom.setEnemy(null);
         currentEnemy = null;
+        isActionInProgress = false;
 
         if (currentRoom.getType() == Room.RoomType.BOSS) {
             Platform.runLater(() -> gameView.showVictory(enemy, expGained));
@@ -238,11 +278,13 @@ public class GameController {
 
     private void handleEnemyCounterAttack(Enemy enemy) {
         String message;
+        int actualDamageTaken;
 
         if (player.isQuenActive()) {
             player.consumeQuen();
             message = "Tarcza Quen absorbuje cały atak od " + enemy.getName() + "!";
             gameView.updateCombatLog(message, "player-log-quen");
+            gameView.showFloatingText("ZABLOKOWANO", "PLAYER", "INFO");
             return;
         }
 
@@ -250,32 +292,38 @@ public class GameController {
 
         if (enemy instanceof Vypper) {
             ((Vypper) enemy).poisonAttack(player);
-            int poisonAttackDamage = enemy.getDamage();
-            message = enemy.getName() + " pluje jadem! Otrzymujesz " + poisonAttackDamage + " pkt. obrażeń i zostajesz zatruty!";
+            actualDamageTaken = player.takeDamage(enemy.getDamage());
+            message = enemy.getName() + " pluje jadem! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń i zostajesz zatruty!";
             gameView.updateCombatLog(message, "enemy-log");
+            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
 
         } else if (enemy instanceof Ogre && ((Ogre) enemy).isEnraged()) {
-            player.takeDamage(enemyDamage);
-            message = "Wściekły " + enemy.getName() + " atakuje z furią! Otrzymujesz " + enemyDamage + " pkt. obrażeń!";
+            actualDamageTaken = player.takeDamage(enemyDamage);
+            message = "Wściekły " + enemy.getName() + " atakuje z furią! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń!";
             gameView.updateCombatLog(message, "enemy-log");
+            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
 
         } else if (enemy instanceof Villentretenmerth) {
-            player.takeDamage(enemyDamage);
+            actualDamageTaken = player.takeDamage(enemyDamage);
+            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
 
             if ("FIRE_BREATH".equals(enemy.lastAttackType)) {
-                message = enemy.getName() + " zieje ogniem! Otrzymujesz " + enemyDamage + " pkt. obrażeń od płomieni!";
+                message = enemy.getName() + " zieje ogniem! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń od płomieni!";
                 gameView.updateCombatLog(message, "enemy-log");
             } else {
-                message = enemy.getName() + " atakuje! Otrzymujesz " + enemyDamage + " pkt. obrażeń!";
+                message = enemy.getName() + " atakuje! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń!";
                 gameView.updateCombatLog(message, "enemy-log");
             }
-            ((Villentretenmerth) enemy).regenerate();
-            gameView.updateCombatLog(enemy.getName() + " regeneruje część zdrowia!", "player-log-sign");
-
+            if (enemy.getHealth() > 0 && enemy.getHealth() < enemy.getMaxHealth() / 2 ) {
+                int healthRegained = ((Villentretenmerth) enemy).regenerate();
+                gameView.updateCombatLog(enemy.getName() + " regeneruje " + healthRegained + " pkt. zdrowia!", "player-log-sign");
+                gameView.showFloatingText("+" + healthRegained, "ENEMY", "HEAL");
+            }
         } else {
-            player.takeDamage(enemyDamage);
-            message = enemy.getName() + " atakuje! Otrzymujesz " + enemyDamage + " pkt. obrażeń!";
+            actualDamageTaken = player.takeDamage(enemyDamage);
+            message = enemy.getName() + " atakuje! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń!";
             gameView.updateCombatLog(message, "enemy-log");
+            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
         }
     }
 
@@ -298,6 +346,7 @@ public class GameController {
     private void gameOver() {
         gameView.closeCombatScreen();
         currentEnemy = null;
+        isActionInProgress = false;
         if (gameView != null) {
             gameView.showGameOver();
         }

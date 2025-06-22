@@ -17,7 +17,7 @@ public class Ruehin extends Enemy {
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
     public Ruehin() {
-        super("Ruehin", 18, 6, 25, imagePath, encounterText, deathText);
+        super("Ruehin", 30, 10, 25, imagePath, encounterText, deathText, "Szansa na uniknięcia obrażeń przy ataku");
     }
 
     @Override

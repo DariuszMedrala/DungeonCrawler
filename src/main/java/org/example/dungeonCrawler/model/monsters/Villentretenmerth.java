@@ -25,7 +25,7 @@ public class Villentretenmerth extends Enemy {
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
     public Villentretenmerth() {
-        super("Villentretenmerth", 200, 35, 500, imagePath, encounterText, deathText);
+        super("Villentretenmerth", 200, 35, 500, imagePath, encounterText, deathText, "Ognisty oddech, Regeneracja zdrowia");
     }
 
     @Override
@@ -43,11 +43,10 @@ public class Villentretenmerth extends Enemy {
         return FIRE_BREATH_DAMAGE + super.attack();
     }
 
-    public void regenerate() {
-        if (getHealth() > 0 && getHealth() < getMaxHealth() * 0.5) {
-            int healAmount = 15;
-            heal(healAmount);
-        }
+    public int regenerate() {
+        int healAmount = 15;
+        heal(healAmount);
+        return healAmount;
     }
 
     private void heal(int amount) {

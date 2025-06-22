@@ -17,7 +17,7 @@ public class Ogre extends Enemy {
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
     public Ogre() {
-        super("Ogre", 60, 15, 50, imagePath, encounterText, deathText);
+        super("Ogre", 80, 30, 50, imagePath, encounterText, deathText, "Zwiększone obrażenia przy niskim zdrowiu");
     }
 
     @Override

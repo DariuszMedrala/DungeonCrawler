@@ -1,6 +1,6 @@
 package org.example.dungeonCrawler.view;
 import javafx.animation.*;
-import javafx.stage.Popup;
+import javafx.geometry.Bounds;
 import javafx.util.Duration;
 import org.example.dungeonCrawler.model.items.*;
 import javafx.application.Platform;
@@ -63,6 +63,7 @@ public class GameView {
     private MediaPlayer victoryMusicPlayer;
     private MediaPlayer defeatMusicPlayer;
     private MediaPlayer combatMusicPlayer;
+    private PauseTransition tooltipDelay;
 
     private Stage combatChoiceStage;
     private Stage combatResultStage;
@@ -76,7 +77,10 @@ public class GameView {
     private Label enemyHealthLabel;
     private Label enemyDamageLabel;
     private Button attackBtn, critAttackBtn, igniBtn, aardBtn, quenBtn, aksjiBtn;
-    private Popup customTooltipPopup;
+    private Stage customTooltipStage;
+    private StackPane playerAvatarContainer;
+    private StackPane enemyAvatarContainer;
+    private Label turnIndicatorLabel;
 
     public GameView(Main mainApp, String playerName) {
         this.mainApp = mainApp;
@@ -1704,7 +1708,7 @@ public class GameView {
         contentTextFlow.getStyleClass().add("about-content-flow");
 
         Text combatMessage = new Text(
-                String.format("PRZECIWNIK: \nŻYCIE: %d\nOBRAŻENIA: %d\n\n",
+                String.format("PRZECIWNIK: \nŻYCIE: %d\nOBRAŻENIA: %d\n UMIEJĘTNOŚC SPECJALNA: " + enemy.getSpecialAbility() + "\n\n",
                         enemy.getHealth(), enemy.getDamage())
         );
         combatMessage.getStyleClass().add("enemy-text");
@@ -2564,10 +2568,6 @@ public class GameView {
             return;
         }
 
-        if (interactiveCombatStage != null && interactiveCombatStage.isShowing()) {
-            return;
-        }
-
         interactiveCombatStage = new Stage();
         interactiveCombatStage.initModality(Modality.APPLICATION_MODAL);
         interactiveCombatStage.initOwner(mainApp.getPrimaryStage());
@@ -2577,15 +2577,22 @@ public class GameView {
 
         AnchorPane root = new AnchorPane();
         root.getStyleClass().add("custom-dialog-background");
-
-        StackPane backgroundPane = new StackPane();
         Label vsLabel = new Label("VS");
         vsLabel.getStyleClass().add("vs-text");
-        backgroundPane.getChildren().add(vsLabel);
-        AnchorPane.setTopAnchor(backgroundPane, 0.0);
-        AnchorPane.setBottomAnchor(backgroundPane, 0.0);
-        AnchorPane.setLeftAnchor(backgroundPane, 0.0);
-        AnchorPane.setRightAnchor(backgroundPane, 0.0);
+
+        turnIndicatorLabel = new Label();
+        turnIndicatorLabel.getStyleClass().add("turn-indicator-text");
+        turnIndicatorLabel.setVisible(false);
+
+        VBox centerLabelsVBox = new VBox(10, vsLabel, turnIndicatorLabel);
+        centerLabelsVBox.setAlignment(Pos.CENTER);
+        centerLabelsVBox.setMouseTransparent(true);
+
+        StackPane centerPane = new StackPane(centerLabelsVBox);
+        AnchorPane.setTopAnchor(centerPane, 0.0);
+        AnchorPane.setBottomAnchor(centerPane, 0.0);
+        AnchorPane.setLeftAnchor(centerPane, 0.0);
+        AnchorPane.setRightAnchor(centerPane, 0.0);
 
         Player player = controller.getPlayer();
         VBox playerInfoBox = createPlayerInfoBox(player);
@@ -2593,7 +2600,7 @@ public class GameView {
         GridPane actionGrid = createActionGrid();
         ScrollPane combatLogScrollPane = createCombatLog();
 
-        root.getChildren().addAll(backgroundPane, playerInfoBox, enemyInfoBox, actionGrid, combatLogScrollPane);
+        root.getChildren().addAll(centerPane, playerInfoBox, enemyInfoBox, actionGrid, combatLogScrollPane);
 
         double margin = 15.0;
         AnchorPane.setBottomAnchor(playerInfoBox, margin);
@@ -2645,16 +2652,17 @@ public class GameView {
             btn.getStyleClass().add("dialog-button-primary");
             btn.setPrefWidth(220);
         }
+        attackBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("ATTACK"); });
+        critAttackBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("CRITICAL_ATTACK"); });
+        igniBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("IGNI"); });
+        aardBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("AARD"); });
+        quenBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("QUEN"); });
+        aksjiBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("AKSJI"); });
 
-        attackBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("ATTACK"); setAllActionButtonsDisabled(true); });
-        critAttackBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("CRITICAL_ATTACK"); setAllActionButtonsDisabled(true); });
-        igniBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("IGNI"); setAllActionButtonsDisabled(true); });
-        aardBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("AARD"); setAllActionButtonsDisabled(true); });
-        quenBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("QUEN"); setAllActionButtonsDisabled(true); });
-        aksjiBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("AKSJI"); setAllActionButtonsDisabled(true); });
-
-        customTooltipPopup = new Popup();
-        customTooltipPopup.setAutoHide(true);
+        customTooltipStage = new Stage();
+        customTooltipStage.initOwner(mainApp.getPrimaryStage());
+        customTooltipStage.initStyle(StageStyle.TRANSPARENT);
+        customTooltipStage.setResizable(false);
 
         installCustomTooltip(attackBtn, "Standardowy, niezawodny atak mieczem.");
         installCustomTooltip(critAttackBtn, "Potężny cios z 50% szansą na trafienie.\nJeśli się powiedzie, zadaje podwójne obrażenia.");
@@ -2673,31 +2681,64 @@ public class GameView {
         return actionGrid;
     }
 
+    public void setActionButtonsDisabled(boolean disabled) {
+        if (attackBtn != null) {
+            attackBtn.setDisable(disabled);
+            critAttackBtn.setDisable(disabled);
+            igniBtn.setDisable(disabled || controller.getPlayer().hasUsedIgni());
+            aardBtn.setDisable(disabled || controller.getPlayer().hasUsedAard());
+            quenBtn.setDisable(disabled || controller.getPlayer().hasUsedQuen() || controller.getPlayer().isQuenActive());
+            aksjiBtn.setDisable(disabled || controller.getPlayer().hasUsedAksji());
+        }
+    }
+
     private void installCustomTooltip(Control control, String text) {
+        if (tooltipDelay == null) {
+            tooltipDelay = new PauseTransition(Duration.millis(500));
+        }
+
         control.setOnMouseEntered(event -> {
+            tooltipDelay.setOnFinished(e -> {
 
-            Text tooltipText = new Text(text);
-            tooltipText.setWrappingWidth(300);
+                Text tooltipText = new Text(text);
+                tooltipText.setWrappingWidth(300);
+                tooltipText.setTextAlignment(TextAlignment.CENTER);
+                tooltipText.setStyle(
+                        "-fx-fill: white; "
+                                + "-fx-font-size: 14px; "
+                                + "-fx-font-weight: bold;"
+                );
 
-            tooltipText.setTextAlignment(TextAlignment.CENTER);
-            tooltipText.setStyle(
-                    "-fx-fill: white; "
-                            + "-fx-font-size: 14px; "
-                            + "-fx-font-weight: bold;"
-            );
+                StackPane tooltipPane = new StackPane(tooltipText);
+                tooltipPane.setPadding(new Insets(10));
+                tooltipPane.setStyle(
+                        "-fx-background-color: rgba(0, 0, 0, 0.85); "
+                                + "-fx-background-radius: 6px;"
+                );
 
-            StackPane tooltipPane = new StackPane(tooltipText);
-            tooltipPane.setStyle(
-                    "-fx-background-color: transparent; "
-                            + "-fx-border-width: 0; "
-                            + "-fx-padding: 8px; "
-            );
+                Scene scene = new Scene(tooltipPane);
+                scene.setFill(Color.TRANSPARENT);
+                customTooltipStage.setScene(scene);
 
-            customTooltipPopup.getContent().setAll(tooltipPane);
-            customTooltipPopup.show(control, event.getScreenX() + 15, event.getScreenY() + 10);
+                customTooltipStage.show();
+
+                double stageWidth = customTooltipStage.getWidth();
+                double stageHeight = customTooltipStage.getHeight();
+                Bounds controlBounds = control.localToScreen(control.getBoundsInLocal());
+
+                double finalX = controlBounds.getMinX() + (controlBounds.getWidth() - stageWidth) / 2;
+                double finalY = controlBounds.getMinY() - stageHeight - 5;
+                customTooltipStage.setX(finalX);
+                customTooltipStage.setY(finalY);
+            });
+            tooltipDelay.playFromStart();
         });
+
         control.setOnMouseExited(event -> {
-            customTooltipPopup.hide();
+            tooltipDelay.stop();
+            if (customTooltipStage != null) {
+                customTooltipStage.hide();
+            }
         });
     }
 
@@ -2720,22 +2761,14 @@ public class GameView {
 
 
     public void refreshCombatScreenState(Enemy enemy) {
-        setAllActionButtonsDisabled(false);
         Player player = controller.getPlayer();
 
-        playerHealthBar.setProgress((double) player.getHealth() / player.getMaxHealth());
-        playerHealthLabel.setText("❤ " + player.getHealth() + " / " + player.getMaxHealth());
+        animateHealthUpdate(playerHealthBar, playerHealthLabel, player.getHealth(), player.getMaxHealth());
+        animateHealthUpdate(enemyHealthBar, enemyHealthLabel, enemy.getHealth(), enemy.getMaxHealth());
+
         playerDamageLabel.setText("⚔ Obrażenia: " + player.getDamage());
         playerArmorLabel.setText("🛡 Pancerz: " + player.getArmor());
-
-        enemyHealthBar.setProgress((double) enemy.getHealth() / enemy.getMaxHealth());
-        enemyHealthLabel.setText("❤ " + enemy.getHealth() + " / " + enemy.getMaxHealth());
         enemyDamageLabel.setText("⚔ Obrażenia: " + enemy.getDamage());
-
-        igniBtn.setDisable(player.hasUsedIgni());
-        aardBtn.setDisable(player.hasUsedAard());
-        quenBtn.setDisable(player.hasUsedQuen() || player.isQuenActive());
-        aksjiBtn.setDisable(player.hasUsedAksji());
     }
 
     public void updateCombatLog(String message, String styleClass) {
@@ -2743,17 +2776,6 @@ public class GameView {
         text.getStyleClass().add(styleClass);
         if (combatLogTextFlow != null) {
             combatLogTextFlow.getChildren().add(text);
-        }
-    }
-
-    private void setAllActionButtonsDisabled(boolean disabled) {
-        if (attackBtn != null) {
-            attackBtn.setDisable(disabled);
-            critAttackBtn.setDisable(disabled);
-            igniBtn.setDisable(disabled || controller.getPlayer().hasUsedIgni());
-            aardBtn.setDisable(disabled || controller.getPlayer().hasUsedAard());
-            quenBtn.setDisable(disabled || controller.getPlayer().hasUsedQuen() || controller.getPlayer().isQuenActive());
-            aksjiBtn.setDisable(disabled || controller.getPlayer().hasUsedAksji());
         }
     }
 
@@ -2786,6 +2808,7 @@ public class GameView {
         imageContainer.getStyleClass().add("image-frame");
         imageContainer.setAlignment(Pos.CENTER);
         imageContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        this.playerAvatarContainer = imageContainer;
 
         this.playerHealthBar = new ProgressBar((double) player.getHealth() / player.getMaxHealth());
         this.playerHealthBar.setMaxWidth(Double.MAX_VALUE);
@@ -2820,6 +2843,7 @@ public class GameView {
         imageContainer.getStyleClass().add("image-frame-red");
         imageContainer.setAlignment(Pos.CENTER);
         imageContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        this.enemyAvatarContainer = imageContainer;
 
         this.enemyHealthBar = new ProgressBar((double) enemy.getHealth() / enemy.getMaxHealth());
         this.enemyHealthBar.setMaxWidth(Double.MAX_VALUE);
@@ -2888,6 +2912,109 @@ public class GameView {
             if (onFinished != null) onFinished.run();
         });
         timeline.play();
+    }
+
+    private void animateHealthUpdate(ProgressBar healthBar, Label healthLabel, int newHealth, int maxHealth) {
+        double targetHealth = Math.max(0, newHealth);
+
+        double targetProgress = (maxHealth > 0) ? (targetHealth / maxHealth) : 0.0;
+
+        Timeline timeline = new Timeline();
+
+        KeyValue keyValue = new KeyValue(healthBar.progressProperty(), targetProgress);
+
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(400), keyValue);
+        timeline.getKeyFrames().add(keyFrame);
+        healthLabel.setText("❤ " + (int)targetHealth + " / " + maxHealth);
+        timeline.play();
+    }
+
+    public void showFloatingText(String text, String targetCharacter, String type) {
+        Platform.runLater(() -> {
+            StackPane targetContainer;
+            String styleClass;
+
+            if ("PLAYER".equalsIgnoreCase(targetCharacter)) {
+                targetContainer = playerAvatarContainer;
+            } else {
+                targetContainer = enemyAvatarContainer;
+            }
+
+            switch (type.toUpperCase()) {
+                case "DAMAGE": styleClass = "damage-text"; break;
+                case "CRIT": styleClass = "crit-text"; break;
+                case "HEAL": styleClass = "heal-text"; break;
+                default: styleClass = "info-text"; break;
+            }
+
+            if (targetContainer == null || interactiveCombatStage == null || !interactiveCombatStage.isShowing()) {
+                return;
+            }
+
+            AnchorPane combatRoot = (AnchorPane) interactiveCombatStage.getScene().getRoot();
+            Label floatingLabel = new Label(text);
+            floatingLabel.getStyleClass().add(styleClass);
+
+            Bounds targetBoundsInScreen = targetContainer.localToScreen(targetContainer.getBoundsInLocal());
+            Bounds rootBoundsInScreen = combatRoot.localToScreen(combatRoot.getBoundsInLocal());
+
+            if (targetBoundsInScreen == null || rootBoundsInScreen == null) return;
+
+            floatingLabel.setPrefWidth(targetBoundsInScreen.getWidth());
+            floatingLabel.setAlignment(Pos.CENTER);
+
+            double startX = targetBoundsInScreen.getMinX() - rootBoundsInScreen.getMinX();
+            double startY = targetBoundsInScreen.getMinY() - rootBoundsInScreen.getMinY();
+
+            floatingLabel.setLayoutX(startX);
+            floatingLabel.setLayoutY(startY);
+
+            combatRoot.getChildren().add(floatingLabel);
+
+            TranslateTransition translateTransition = new TranslateTransition(Duration.millis(2500), floatingLabel);
+            translateTransition.setByY(-70);
+            translateTransition.setCycleCount(1);
+
+            FadeTransition fadeTransition = new FadeTransition(Duration.millis(2500), floatingLabel);
+            fadeTransition.setFromValue(1.0);
+            fadeTransition.setToValue(0.0);
+            fadeTransition.setCycleCount(1);
+
+            ParallelTransition parallelTransition = new ParallelTransition(translateTransition, fadeTransition);
+            parallelTransition.setOnFinished(event -> combatRoot.getChildren().remove(floatingLabel));
+            parallelTransition.play();
+        });
+    }
+
+    public void showTurnIndicator(String text, Runnable onFinished) {
+        Platform.runLater(() -> {
+            if (turnIndicatorLabel == null || interactiveCombatStage == null || !interactiveCombatStage.isShowing()) {
+                if(onFinished != null) onFinished.run();
+                return;
+            }
+            turnIndicatorLabel.setText(text);
+            turnIndicatorLabel.setVisible(true);
+            turnIndicatorLabel.setOpacity(0.0);
+
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(400), turnIndicatorLabel);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+
+            PauseTransition hold = new PauseTransition(Duration.millis(1500));
+
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(600), turnIndicatorLabel);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+
+            SequentialTransition sequence = new SequentialTransition(fadeIn, hold, fadeOut);
+            sequence.setOnFinished(e -> {
+                turnIndicatorLabel.setVisible(false);
+                if (onFinished != null) {
+                    onFinished.run();
+                }
+            });
+            sequence.play();
+        });
     }
 
     public void disposeResources() {

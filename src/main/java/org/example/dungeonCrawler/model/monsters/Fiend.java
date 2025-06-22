@@ -18,7 +18,7 @@ public class Fiend extends Enemy {
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
     public Fiend() {
-        super("Fiend", 35, 12, 40, imagePath, encounterText, deathText);
+        super("Fiend", 60, 20, 40, imagePath, encounterText, deathText, "Szansa na redukcję obrażeń o połowę przy ataku");
     }
 
     @Override

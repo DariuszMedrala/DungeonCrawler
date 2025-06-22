@@ -16,6 +16,6 @@ public class Glustyworp extends Enemy {
             "Zdobywasz %d pkt doświadczenia.\n\n";
 
     public Glustyworp() {
-        super("Glustyworp", 20, 10, 35, imagePath, encounterText, deathText);
+        super("Glustyworp", 30, 10, 35, imagePath, encounterText, deathText, "Brak");
     }
 }

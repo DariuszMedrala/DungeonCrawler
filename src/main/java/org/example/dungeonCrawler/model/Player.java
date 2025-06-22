@@ -66,10 +66,10 @@ public class Player {
         this.y += dy;
     }
 
-    public void takeDamage(int damage) {
+    public int takeDamage(int damage) {
         if (isQuenActive()) {
             consumeQuen();
-            return;
+            return 0;
         }
 
         int totalArmor = baseArmor + (equippedArmor != null ? equippedArmor.getArmorValue() : 0);
@@ -79,6 +79,8 @@ public class Player {
         if (this.health < 0) {
             this.health = 0;
         }
+
+        return finalDamage;
     }
 
     public void heal(int amount) {
