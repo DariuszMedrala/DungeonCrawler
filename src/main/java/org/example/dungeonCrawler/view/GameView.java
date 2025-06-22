@@ -30,12 +30,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.example.dungeonCrawler.Main;
 import org.example.dungeonCrawler.model.items.armors.Armor;
-import org.example.dungeonCrawler.model.items.armors.ChainMail;
 import org.example.dungeonCrawler.model.items.armors.DragonScaleArmor;
 import org.example.dungeonCrawler.model.items.keys.Key;
 import org.example.dungeonCrawler.model.items.potions.*;
 import org.example.dungeonCrawler.model.items.weapons.DragonSword;
-import org.example.dungeonCrawler.model.items.weapons.SteelSword;
 import org.example.dungeonCrawler.model.items.weapons.Weapon;
 
 public class GameView {
@@ -345,7 +343,7 @@ public class GameView {
                     merchantIconView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 2, 0.0, 0, 1);");
                     cellNode.getChildren().add(merchantIconView);
                 }
-                else if (room.getEnemy() != null && room.getEnemy().isAlive() && !(x == player.getX() && y == player.getY())) {
+                else if (room.getEnemy() != null && room.getEnemy().isAlive() && room.getType() != Room.RoomType.EVENT && !(x == player.getX() && y == player.getY())) {
                     String markerSymbol;
                     double markerFontSize;
                     Color symbolFillColor;
