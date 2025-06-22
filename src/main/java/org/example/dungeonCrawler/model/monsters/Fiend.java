@@ -22,12 +22,16 @@ public class Fiend extends Enemy {
     }
 
     @Override
-    public void takeDamage(int damage) {
+    public int takeDamage(int damage) {
         if (Math.random() < BLOCK_CHANCE) {
             int blockedDamage = damage / 2;
-            super.takeDamage(blockedDamage);
+            this.health -= blockedDamage;
+            if (this.health < 0) {
+                this.health = 0;
+            }
+            return blockedDamage;
         } else {
-            super.takeDamage(damage);
+            return super.takeDamage(damage);
         }
     }
 }

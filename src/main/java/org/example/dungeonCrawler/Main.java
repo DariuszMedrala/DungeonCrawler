@@ -160,7 +160,7 @@ public class Main extends Application {
             fadeFromBlack.setOnFinished(e -> {
                 dimmerOverlay.setMouseTransparent(true);
                 if (showWelcome) {
-                    javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(500));
+                    javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(250));
                     delay.setOnFinished(evt -> Platform.runLater(() -> gameView.showWelcomeDialog()));
                     delay.play();
                 }

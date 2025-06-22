@@ -31,8 +31,10 @@ public class Villentretenmerth extends Enemy {
     @Override
     public int attack() {
         if (Math.random() < FIRE_BREATH_CHANCE && !hasUsedFireBreath) {
+            this.lastAttackType = "FIRE_BREATH";
             return fireBreathAttack();
         }
+        this.lastAttackType = "NORMAL";
         return super.attack();
     }
 

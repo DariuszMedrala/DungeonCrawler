@@ -2,14 +2,16 @@ package org.example.dungeonCrawler.model;
 
 public class Enemy {
     private final String name;
-    private int health;
+    protected int health;
     private final int maxHealth;
     private final int damage;
     private final int experienceReward;
     private final String imagePath;
     private final String encounterText;
     private final String deathText;
+    public String lastAttackType = "NORMAL";
 
+    private int stunnedTurns = 0;
 
     public Enemy(String name, int health, int damage, int experienceReward, String imagePath, String encounterText, String deathText) {
         this.name = name;
@@ -26,15 +28,30 @@ public class Enemy {
         return damage + (int)(Math.random() * 5);
     }
 
-    public void takeDamage(int damage) {
+    public int takeDamage(int damage) {
         this.health -= damage;
         if (this.health < 0) {
             this.health = 0;
         }
+        return damage;
     }
 
     public boolean isAlive() {
         return health > 0;
+    }
+
+    public boolean isStunned() {
+        return stunnedTurns > 0;
+    }
+
+    public void stun(int turns) {
+        this.stunnedTurns = Math.max(this.stunnedTurns, turns);
+    }
+
+    public void decrementStun() {
+        if (this.stunnedTurns > 0) {
+            this.stunnedTurns--;
+        }
     }
 
     public String getName() { return name; }

@@ -32,6 +32,13 @@ public class Player {
     private Armor equippedArmor;
     private int coins;
 
+    private boolean quenActive = false;
+    private boolean usedIgniInCombat = false;
+    private boolean usedAardInCombat = false;
+    private boolean usedQuenInCombat = false;
+    private boolean usedAksjiInCombat = false;
+
+
     public Player(int startX, int startY) {
         this.x = startX;
         this.y = startY;
@@ -60,6 +67,11 @@ public class Player {
     }
 
     public void takeDamage(int damage) {
+        if (isQuenActive()) {
+            consumeQuen();
+            return;
+        }
+
         int totalArmor = baseArmor + (equippedArmor != null ? equippedArmor.getArmorValue() : 0);
         int finalDamage = Math.max(1, damage - totalArmor);
         this.health -= finalDamage;
@@ -236,6 +248,31 @@ public class Player {
     public boolean isInventoryFull() {
         return inventory.size() >= MAX_INVENTORY_SIZE;
     }
+
+    public void resetCombatStats() {
+        this.quenActive = false;
+        this.usedIgniInCombat = false;
+        this.usedAardInCombat = false;
+        this.usedQuenInCombat = false;
+        this.usedAksjiInCombat = false;
+    }
+
+    public boolean isQuenActive() { return quenActive; }
+    public void activateQuen() { this.quenActive = true; }
+    public void consumeQuen() { this.quenActive = false; }
+
+    public boolean hasUsedIgni() { return usedIgniInCombat; }
+    public void setUsedIgni(boolean used) { this.usedIgniInCombat = used; }
+
+    public boolean hasUsedAard() { return usedAardInCombat; }
+    public void setUsedAard(boolean used) { this.usedAardInCombat = used; }
+
+    public boolean hasUsedQuen() { return usedQuenInCombat; }
+    public void setUsedQuen(boolean used) { this.usedQuenInCombat = used; }
+
+    public boolean hasUsedAksji() { return usedAksjiInCombat; }
+    public void setUsedAksji(boolean used) { this.usedAksjiInCombat = used; }
+
 
     public int getX() { return x; }
     public int getY() { return y; }

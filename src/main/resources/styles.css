@@ -636,3 +636,33 @@
     -fx-border-width: 4px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.1, 0, 0);
 }
+
+.player-health-bar .bar {
+    -fx-background-color: linear-gradient(to right, #6ab44f, #94d97d);
+}
+.enemy-health-bar .bar {
+    -fx-background-color: linear-gradient(to right, #c73426, #f8695c);
+}
+.progress-bar .track {
+    -fx-background-color: #333;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+
+
+.player-log { -fx-fill: #a9f5a9; }
+.player-log-crit { -fx-fill: #ffb84d; -fx-font-weight: bold; }
+.player-log-miss { -fx-fill: #cccccc; -fx-font-style: italic; }
+.player-log-sign { -fx-fill: #87cefa; }
+.player-log-quen { -fx-fill: #add8e6; -fx-font-weight: bold; }
+.enemy-log { -fx-fill: #f5a9a9; }
+.enemy-log-miss { -fx-fill: #cccccc; -fx-font-style: italic; }
+
+.vs-text {
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+    -fx-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, #8b0000, 4, 0.8, 2, 2);
+    -fx-font-family: 'Cinzel', serif;
+}
+

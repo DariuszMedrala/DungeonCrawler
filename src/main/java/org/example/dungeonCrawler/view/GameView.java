@@ -1,4 +1,7 @@
 package org.example.dungeonCrawler.view;
+import javafx.animation.*;
+import javafx.stage.Popup;
+import javafx.util.Duration;
 import org.example.dungeonCrawler.model.items.*;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -22,6 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,9 +62,21 @@ public class GameView {
     private MediaPlayer gameMusicPlayer;
     private MediaPlayer victoryMusicPlayer;
     private MediaPlayer defeatMusicPlayer;
+    private MediaPlayer combatMusicPlayer;
 
     private Stage combatChoiceStage;
     private Stage combatResultStage;
+    private Stage interactiveCombatStage;
+    private TextFlow combatLogTextFlow;
+    private ProgressBar playerHealthBar;
+    private Label playerHealthLabel;
+    private Label playerDamageLabel;
+    private Label playerArmorLabel;
+    private ProgressBar enemyHealthBar;
+    private Label enemyHealthLabel;
+    private Label enemyDamageLabel;
+    private Button attackBtn, critAttackBtn, igniBtn, aardBtn, quenBtn, aksjiBtn;
+    private Popup customTooltipPopup;
 
     public GameView(Main mainApp, String playerName) {
         this.mainApp = mainApp;
@@ -105,6 +121,12 @@ public class GameView {
         defeatMusicPlayer = new MediaPlayer(defeatMusic);
         defeatMusicPlayer.setVolume(0.3);
         defeatMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+        String combatMusicPath = Objects.requireNonNull(getClass().getResource("/music/combat_music.mp3")).toExternalForm();
+        Media combatMusic = new Media(combatMusicPath);
+        combatMusicPlayer = new MediaPlayer(combatMusic);
+        combatMusicPlayer.setVolume(0.15);
+        combatMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
     }
 
     private void playButtonClickSound() {
@@ -1701,10 +1723,7 @@ public class GameView {
         attackButton.setOnAction(e -> {
             playButtonClickSound();
             combatChoiceStage.close();
-            controller.attack();
-            if (!player.isAlive()){
-                showGameOver();
-            }
+            controller.beginInteractiveCombat();
         });
 
 
@@ -1829,6 +1848,8 @@ public class GameView {
         okButton.setOnAction(e -> {
             playButtonClickSound();
             combatResultStage.close();
+            fadeOutAndStop(combatMusicPlayer, () -> fadeIn(gameMusicPlayer, 0.1));
+
             if (levelUp) {
                 Platform.runLater(this::showLevelUpDialog);
             }
@@ -2103,10 +2124,11 @@ public class GameView {
 
 
     public void showGameOver() {
+        fadeOutAndStop(combatMusicPlayer, () -> {
+            if (defeatMusicPlayer != null) defeatMusicPlayer.play();
+        });
+
         if (gameMusicPlayer != null) gameMusicPlayer.stop();
-        if (defeatMusicPlayer != null) {
-            defeatMusicPlayer.play();
-        }
 
         if (combatChoiceStage != null && combatChoiceStage.isShowing()) combatChoiceStage.close();
         if (combatResultStage != null && combatResultStage.isShowing()) combatResultStage.close();
@@ -2125,8 +2147,11 @@ public class GameView {
     }
 
     public void showVictory(Enemy boss, int expGained) {
+        fadeOutAndStop(combatMusicPlayer, () -> {
+            if (victoryMusicPlayer != null) victoryMusicPlayer.play();
+        });
+
         if (gameMusicPlayer != null) gameMusicPlayer.stop();
-        if (victoryMusicPlayer != null) victoryMusicPlayer.play();
         if (combatChoiceStage != null && combatChoiceStage.isShowing()) combatChoiceStage.close();
         if (combatResultStage != null && combatResultStage.isShowing()) combatResultStage.close();
 
@@ -2532,7 +2557,338 @@ public class GameView {
         return null;
     }
 
+    public void showInteractiveCombatScreen(Enemy enemy) {
+        fadeOutAndPause(gameMusicPlayer, () -> fadeIn(combatMusicPlayer, 0.15));
 
+        if (interactiveCombatStage != null && interactiveCombatStage.isShowing()) {
+            return;
+        }
+
+        if (interactiveCombatStage != null && interactiveCombatStage.isShowing()) {
+            return;
+        }
+
+        interactiveCombatStage = new Stage();
+        interactiveCombatStage.initModality(Modality.APPLICATION_MODAL);
+        interactiveCombatStage.initOwner(mainApp.getPrimaryStage());
+        interactiveCombatStage.setTitle("WALKA: " + enemy.getName().toUpperCase());
+        interactiveCombatStage.initStyle(StageStyle.TRANSPARENT);
+        interactiveCombatStage.setOnCloseRequest(Event::consume);
+
+        AnchorPane root = new AnchorPane();
+        root.getStyleClass().add("custom-dialog-background");
+
+        StackPane backgroundPane = new StackPane();
+        Label vsLabel = new Label("VS");
+        vsLabel.getStyleClass().add("vs-text");
+        backgroundPane.getChildren().add(vsLabel);
+        AnchorPane.setTopAnchor(backgroundPane, 0.0);
+        AnchorPane.setBottomAnchor(backgroundPane, 0.0);
+        AnchorPane.setLeftAnchor(backgroundPane, 0.0);
+        AnchorPane.setRightAnchor(backgroundPane, 0.0);
+
+        Player player = controller.getPlayer();
+        VBox playerInfoBox = createPlayerInfoBox(player);
+        VBox enemyInfoBox = createEnemyInfoBox(enemy);
+        GridPane actionGrid = createActionGrid();
+        ScrollPane combatLogScrollPane = createCombatLog();
+
+        root.getChildren().addAll(backgroundPane, playerInfoBox, enemyInfoBox, actionGrid, combatLogScrollPane);
+
+        double margin = 15.0;
+        AnchorPane.setBottomAnchor(playerInfoBox, margin);
+        AnchorPane.setLeftAnchor(playerInfoBox, margin);
+        AnchorPane.setTopAnchor(enemyInfoBox, margin);
+        AnchorPane.setRightAnchor(enemyInfoBox, margin);
+        AnchorPane.setTopAnchor(actionGrid, margin);
+        AnchorPane.setLeftAnchor(actionGrid, margin);
+        AnchorPane.setBottomAnchor(combatLogScrollPane, margin);
+        AnchorPane.setRightAnchor(combatLogScrollPane, margin);
+
+        Scene scene = new Scene(root, 900, 700);
+        scene.setFill(Color.TRANSPARENT);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+
+        interactiveCombatStage.setScene(scene);
+
+        interactiveCombatStage.setOnShown(e -> {
+            Stage owner = mainApp.getPrimaryStage();
+            if (owner != null) {
+                double y = owner.getY() + (owner.getHeight() - interactiveCombatStage.getHeight()) / 2;
+                double x = owner.getX() + 50;
+
+                interactiveCombatStage.setX(x);
+                interactiveCombatStage.setY(y);
+            }
+            AnimationUtil.playFadeInTransition(root, null);
+        });
+
+        interactiveCombatStage.show();
+        refreshCombatScreenState(enemy);
+    }
+
+    private GridPane createActionGrid() {
+        GridPane actionGrid = new GridPane();
+        actionGrid.setAlignment(Pos.CENTER);
+        actionGrid.setHgap(10);
+        actionGrid.setVgap(10);
+
+        attackBtn = new Button("⚔ Atak");
+        critAttackBtn = new Button("💥 Atak Krytyczny");
+        igniBtn = new Button("🔥 Znak Igni");
+        aardBtn = new Button("💨 Znak Aard");
+        quenBtn = new Button("🛡 Znak Quen");
+        aksjiBtn = new Button("🌀 Znak Aksji");
+
+        Button[] actionButtons = {attackBtn, critAttackBtn, igniBtn, aardBtn, quenBtn, aksjiBtn};
+        for (Button btn : actionButtons) {
+            btn.getStyleClass().add("dialog-button-primary");
+            btn.setPrefWidth(220);
+        }
+
+        attackBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("ATTACK"); setAllActionButtonsDisabled(true); });
+        critAttackBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("CRITICAL_ATTACK"); setAllActionButtonsDisabled(true); });
+        igniBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("IGNI"); setAllActionButtonsDisabled(true); });
+        aardBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("AARD"); setAllActionButtonsDisabled(true); });
+        quenBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("QUEN"); setAllActionButtonsDisabled(true); });
+        aksjiBtn.setOnAction(e -> { playButtonClickSound(); controller.handlePlayerAction("AKSJI"); setAllActionButtonsDisabled(true); });
+
+        customTooltipPopup = new Popup();
+        customTooltipPopup.setAutoHide(true);
+
+        installCustomTooltip(attackBtn, "Standardowy, niezawodny atak mieczem.");
+        installCustomTooltip(critAttackBtn, "Potężny cios z 50% szansą na trafienie.\nJeśli się powiedzie, zadaje podwójne obrażenia.");
+        installCustomTooltip(igniBtn, "Wiedźmiński Znak zadający obrażenia od ognia.\nMoże być użyty raz na walkę.");
+        installCustomTooltip(aardBtn, "Fala telekinetyczna, która zadaje niewielkie obrażenia i ogłusza przeciwnika na 1 turę.\nMoże być użyty raz na walkę.");
+        installCustomTooltip(quenBtn, "Tworzy ochronną tarczę, która całkowicie zablokuje następny wrogi atak.\nMoże być użyty raz na walkę.");
+        installCustomTooltip(aksjiBtn, "Wpływa na umysł przeciwnika, ogłuszając go na 2 tury.\nMoże być użyty raz na walkę.");
+
+        actionGrid.add(attackBtn, 0, 0);
+        actionGrid.add(critAttackBtn, 1, 0);
+        actionGrid.add(igniBtn, 0, 1);
+        actionGrid.add(aardBtn, 1, 1);
+        actionGrid.add(quenBtn, 0, 2);
+        actionGrid.add(aksjiBtn, 1, 2);
+
+        return actionGrid;
+    }
+
+    private void installCustomTooltip(Control control, String text) {
+        control.setOnMouseEntered(event -> {
+
+            Text tooltipText = new Text(text);
+            tooltipText.setWrappingWidth(300);
+
+            tooltipText.setTextAlignment(TextAlignment.CENTER);
+            tooltipText.setStyle(
+                    "-fx-fill: white; "
+                            + "-fx-font-size: 14px; "
+                            + "-fx-font-weight: bold;"
+            );
+
+            StackPane tooltipPane = new StackPane(tooltipText);
+            tooltipPane.setStyle(
+                    "-fx-background-color: transparent; "
+                            + "-fx-border-width: 0; "
+                            + "-fx-padding: 8px; "
+            );
+
+            customTooltipPopup.getContent().setAll(tooltipPane);
+            customTooltipPopup.show(control, event.getScreenX() + 15, event.getScreenY() + 10);
+        });
+        control.setOnMouseExited(event -> {
+            customTooltipPopup.hide();
+        });
+    }
+
+    private ScrollPane createCombatLog() {
+        ScrollPane scrollPane = new ScrollPane();
+        Text initialText = new Text("Walka się rozpoczyna!\n");
+        initialText.getStyleClass().add("custom-title-text");
+
+        this.combatLogTextFlow = new TextFlow(initialText);
+        this.combatLogTextFlow.setPadding(new Insets(5));
+        combatLogTextFlow.getStyleClass().add("custom-title-text");
+
+        scrollPane.setContent(this.combatLogTextFlow);
+        scrollPane.getStyleClass().add("image-frame");
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefSize(475, 200);
+        this.combatLogTextFlow.heightProperty().addListener((observable) -> scrollPane.setVvalue(1.0));
+        return scrollPane;
+    }
+
+
+    public void refreshCombatScreenState(Enemy enemy) {
+        setAllActionButtonsDisabled(false);
+        Player player = controller.getPlayer();
+
+        playerHealthBar.setProgress((double) player.getHealth() / player.getMaxHealth());
+        playerHealthLabel.setText("❤ " + player.getHealth() + " / " + player.getMaxHealth());
+        playerDamageLabel.setText("⚔ Obrażenia: " + player.getDamage());
+        playerArmorLabel.setText("🛡 Pancerz: " + player.getArmor());
+
+        enemyHealthBar.setProgress((double) enemy.getHealth() / enemy.getMaxHealth());
+        enemyHealthLabel.setText("❤ " + enemy.getHealth() + " / " + enemy.getMaxHealth());
+        enemyDamageLabel.setText("⚔ Obrażenia: " + enemy.getDamage());
+
+        igniBtn.setDisable(player.hasUsedIgni());
+        aardBtn.setDisable(player.hasUsedAard());
+        quenBtn.setDisable(player.hasUsedQuen() || player.isQuenActive());
+        aksjiBtn.setDisable(player.hasUsedAksji());
+    }
+
+    public void updateCombatLog(String message, String styleClass) {
+        Text text = new Text(message + "\n");
+        text.getStyleClass().add(styleClass);
+        if (combatLogTextFlow != null) {
+            combatLogTextFlow.getChildren().add(text);
+        }
+    }
+
+    private void setAllActionButtonsDisabled(boolean disabled) {
+        if (attackBtn != null) {
+            attackBtn.setDisable(disabled);
+            critAttackBtn.setDisable(disabled);
+            igniBtn.setDisable(disabled || controller.getPlayer().hasUsedIgni());
+            aardBtn.setDisable(disabled || controller.getPlayer().hasUsedAard());
+            quenBtn.setDisable(disabled || controller.getPlayer().hasUsedQuen() || controller.getPlayer().isQuenActive());
+            aksjiBtn.setDisable(disabled || controller.getPlayer().hasUsedAksji());
+        }
+    }
+
+    public void closeCombatScreen() {
+        if (interactiveCombatStage != null && interactiveCombatStage.isShowing()) {
+            interactiveCombatStage.close();
+        }
+    }
+
+    private VBox createPlayerInfoBox(Player player) {
+        VBox pane = new VBox(8);
+        pane.setAlignment(Pos.CENTER);
+        pane.setPadding(new Insets(15));
+        pane.setPrefWidth(300);
+
+        Label nameLabel = new Label("Wiedźmin " + playerName);
+        nameLabel.getStyleClass().add("about-title");
+
+        ImageView playerAvatar = new ImageView();
+        InputStream avatarStream = getClass().getResourceAsStream("/images/victory.png");
+        if (avatarStream != null) {
+            playerAvatar.setImage(new Image(avatarStream));
+            playerAvatar.setFitHeight(250);
+            playerAvatar.setFitWidth(200);
+        } else {
+            System.err.println("Ostrzeżenie: Nie znaleziono awatara gracza pod ścieżką /images/player_avatar.png.");
+        }
+
+        StackPane imageContainer = new StackPane(playerAvatar);
+        imageContainer.getStyleClass().add("image-frame");
+        imageContainer.setAlignment(Pos.CENTER);
+        imageContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+        this.playerHealthBar = new ProgressBar((double) player.getHealth() / player.getMaxHealth());
+        this.playerHealthBar.setMaxWidth(Double.MAX_VALUE);
+        this.playerHealthBar.getStyleClass().add("player-health-bar");
+
+        this.playerHealthLabel = new Label("❤ " + player.getHealth() + " / " + player.getMaxHealth());
+        this.playerHealthLabel.getStyleClass().add("player-text");
+
+        this.playerDamageLabel = new Label("⚔ Obrażenia: " + player.getDamage());
+        this.playerArmorLabel = new Label("🛡 Pancerz: " + player.getArmor());
+        this.playerDamageLabel.getStyleClass().add("player-text");
+        this.playerArmorLabel.getStyleClass().add("player-text");
+
+        pane.getChildren().addAll(imageContainer, playerHealthBar, playerHealthLabel, playerDamageLabel, playerArmorLabel);
+        return pane;
+    }
+
+    private VBox createEnemyInfoBox(Enemy enemy) {
+        VBox pane = new VBox(8);
+        pane.setAlignment(Pos.CENTER);
+        pane.setPadding(new Insets(15));
+        pane.setPrefWidth(300);
+
+        Label nameLabel = new Label(enemy.getName());
+        nameLabel.getStyleClass().add("about-title");
+
+        ImageView enemyAvatar = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(enemy.getImagePath()))));
+        enemyAvatar.setFitHeight(250);
+        enemyAvatar.setFitWidth(200);
+
+        StackPane imageContainer = new StackPane(enemyAvatar);
+        imageContainer.getStyleClass().add("image-frame-red");
+        imageContainer.setAlignment(Pos.CENTER);
+        imageContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+        this.enemyHealthBar = new ProgressBar((double) enemy.getHealth() / enemy.getMaxHealth());
+        this.enemyHealthBar.setMaxWidth(Double.MAX_VALUE);
+        this.enemyHealthBar.getStyleClass().add("enemy-health-bar");
+
+        this.enemyHealthLabel = new Label("❤ " + enemy.getHealth() + " / " + enemy.getMaxHealth());
+        this.enemyHealthLabel.getStyleClass().add("enemy-text");
+
+        this.enemyDamageLabel = new Label("⚔ Obrażenia: " + enemy.getDamage());
+        this.enemyDamageLabel.getStyleClass().add("enemy-text");
+
+        pane.getChildren().addAll(imageContainer, enemyHealthBar, enemyHealthLabel, enemyDamageLabel);
+        return pane;
+    }
+
+    public void enableActionButtons() {
+        Platform.runLater(() -> {
+            if (controller.getPlayer().isAlive() && controller.getEnemy().isAlive()) {
+                refreshCombatScreenState(controller.getEnemy());
+            }
+        });
+    }
+
+    private void fadeIn(MediaPlayer mediaPlayer, double targetVolume) {
+        if (mediaPlayer == null) return;
+        mediaPlayer.setVolume(0);
+        mediaPlayer.play();
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(1.5),
+                        new KeyValue(mediaPlayer.volumeProperty(), targetVolume))
+        );
+        timeline.play();
+    }
+
+    private void fadeOutAndPause(MediaPlayer mediaPlayer, Runnable onFinished) {
+        if (mediaPlayer == null || mediaPlayer.getStatus() != MediaPlayer.Status.PLAYING) {
+            if (onFinished != null) onFinished.run();
+            return;
+        }
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(1.5),
+                        new KeyValue(mediaPlayer.volumeProperty(), 0))
+        );
+        timeline.setOnFinished(event -> {
+            mediaPlayer.pause();
+            if (onFinished != null) onFinished.run();
+        });
+        timeline.play();
+    }
+
+    private void fadeOutAndStop(MediaPlayer mediaPlayer, Runnable onFinished) {
+        if (mediaPlayer == null || mediaPlayer.getStatus() != MediaPlayer.Status.PLAYING) {
+            if (onFinished != null) onFinished.run();
+            return;
+        }
+        double currentVolume = mediaPlayer.getVolume();
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(1.5),
+                        new KeyValue(mediaPlayer.volumeProperty(), 0))
+        );
+        timeline.setOnFinished(event -> {
+            mediaPlayer.stop();
+            mediaPlayer.setVolume(currentVolume);
+            if (onFinished != null) onFinished.run();
+        });
+        timeline.play();
+    }
 
     public void disposeResources() {
         if (gameMusicPlayer != null) {
@@ -2557,6 +2913,10 @@ public class GameView {
         if (combatResultStage != null) {
             combatResultStage.close();
             combatResultStage = null;
+        }
+        if (combatMusicPlayer != null) {
+            combatMusicPlayer.stop();
+            combatMusicPlayer.dispose();
         }
     }
 }

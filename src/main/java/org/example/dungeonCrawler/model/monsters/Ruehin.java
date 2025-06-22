@@ -21,11 +21,11 @@ public class Ruehin extends Enemy {
     }
 
     @Override
-    public void takeDamage(int damage) {
+    public int takeDamage(int damage) {
         if (Math.random() < DODGE_CHANCE) {
-            return;
+            return 0;
         }
-        super.takeDamage(damage);
+        return super.takeDamage(damage);
     }
 
     @Override
