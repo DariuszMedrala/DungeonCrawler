@@ -1852,12 +1852,14 @@ public class GameView {
         okButton.setOnAction(e -> {
             playButtonClickSound();
             combatResultStage.close();
-            fadeOutAndStop(combatMusicPlayer, () -> fadeIn(gameMusicPlayer, 0.1));
 
-            if (levelUp) {
-                Platform.runLater(this::showLevelUpDialog);
+            if (playerWon) {
+                fadeOutAndStop(combatMusicPlayer, () -> fadeIn(gameMusicPlayer, 0.1));
+                if (levelUp) {
+                    Platform.runLater(this::showLevelUpDialog);
+                }
             }
-            updateDisplay();
+            Platform.runLater(this::updateDisplay);
         });
 
         if (!playerWon) {

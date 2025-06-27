@@ -109,12 +109,10 @@ public class GameController {
             isActionInProgress = true;
 
             PauseTransition initialDelay = new PauseTransition(Duration.millis(750));
-            initialDelay.setOnFinished(e -> {
-                gameView.showTurnIndicator("TWOJA TURA", () -> {
-                    gameView.setActionButtonsDisabled(false);
-                    isActionInProgress = false;
-                });
-            });
+            initialDelay.setOnFinished(e -> gameView.showTurnIndicator("TWOJA TURA", () -> {
+                gameView.setActionButtonsDisabled(false);
+                isActionInProgress = false;
+            }));
             initialDelay.play();
         }
     }
@@ -141,10 +139,10 @@ public class GameController {
                     gameView.showFloatingText("UNIK", "ENEMY", "INFO");
                 } else if (actualDamage < playerDamage) {
                     gameView.updateCombatLog(currentEnemy.getName() + " blokuje część ataku, otrzymując tylko " + actualDamage + " pkt. obrażeń!", "enemy-log");
-                    gameView.showFloatingText(String.valueOf("-" + actualDamage), "ENEMY", "DAMAGE");
+                    gameView.showFloatingText("-" + actualDamage, "ENEMY", "DAMAGE");
                 } else {
                     gameView.updateCombatLog("Zadajesz " + actualDamage + " pkt. obrażeń!", "player-log");
-                    gameView.showFloatingText(String.valueOf("-"  + actualDamage), "ENEMY", "DAMAGE");
+                    gameView.showFloatingText("-" + actualDamage, "ENEMY", "DAMAGE");
                 }
                 break;
 
@@ -158,10 +156,10 @@ public class GameController {
                         gameView.showFloatingText("UNIK", "ENEMY", "INFO");
                     } else if (actualDamage < playerDamage) {
                         gameView.updateCombatLog("Mocny cios! " + currentEnemy.getName() + " blokuje go, otrzymując " + actualDamage + " pkt. obrażeń krytycznych!", "player-log-crit");
-                        gameView.showFloatingText(String.valueOf("-" + actualDamage), "ENEMY", "CRIT");
+                        gameView.showFloatingText("-" + actualDamage, "ENEMY", "CRIT");
                     } else {
                         gameView.updateCombatLog("Trafienie krytyczne! Zadajesz " + actualDamage + " pkt. obrażeń!", "player-log-crit");
-                        gameView.showFloatingText(String.valueOf("-"  + actualDamage), "ENEMY", "CRIT");
+                        gameView.showFloatingText("-" + actualDamage, "ENEMY", "CRIT");
                     }
                 } else {
                     gameView.updateCombatLog("Atak krytyczny spudłował!", "player-log-miss");
@@ -174,7 +172,7 @@ public class GameController {
                 int actualIgniDamage = currentEnemy.takeDamage(igniDamage);
                 player.setUsedIgni(true);
 
-                gameView.showFloatingText(String.valueOf("-"  + actualIgniDamage), "ENEMY", "DAMAGE");
+                gameView.showFloatingText("-" + actualIgniDamage, "ENEMY", "DAMAGE");
 
                 if (actualIgniDamage == 0) {
                     gameView.updateCombatLog(currentEnemy.getName() + " unika płomieni znaku Igni!", "enemy-log-miss");
@@ -191,7 +189,7 @@ public class GameController {
                 currentEnemy.stun(1);
                 player.setUsedAard(true);
 
-                gameView.showFloatingText(String.valueOf("-"  + actualAardDamage), "ENEMY", "DAMAGE");
+                gameView.showFloatingText("-" + actualAardDamage, "ENEMY", "DAMAGE");
 
                 PauseTransition stunTextDelay = new PauseTransition(Duration.millis(700));
                 stunTextDelay.setOnFinished(e -> gameView.showFloatingText("OGŁUSZONY", "ENEMY", "INFO"));
@@ -232,30 +230,28 @@ public class GameController {
         }
 
         PauseTransition enemyTurnDelay = new PauseTransition(Duration.seconds(2.5));
-        enemyTurnDelay.setOnFinished(event -> {
-            gameView.showTurnIndicator("TURA PRZECIWNIKA", () -> {
-                if (currentEnemy.isStunned()) {
-                    gameView.updateCombatLog(currentEnemy.getName() + " jest ogłuszony i nie może się ruszyć.", "enemy-log-miss");
-                    currentEnemy.decrementStun();
-                } else {
-                    handleEnemyCounterAttack(currentEnemy);
-                }
+        enemyTurnDelay.setOnFinished(event -> gameView.showTurnIndicator("TURA PRZECIWNIKA", () -> {
+            if (currentEnemy.isStunned()) {
+                gameView.updateCombatLog(currentEnemy.getName() + " jest ogłuszony i nie może się ruszyć.", "enemy-log-miss");
+                currentEnemy.decrementStun();
+            } else {
+                handleEnemyCounterAttack(currentEnemy);
+            }
 
-                player.processTurnEffects();
-                gameView.refreshCombatScreenState(currentEnemy);
+            player.processTurnEffects();
+            gameView.refreshCombatScreenState(currentEnemy);
 
-                if (!player.isAlive()) {
-                    PauseTransition gameOverDelay = new PauseTransition(Duration.seconds(1.2));
-                    gameOverDelay.setOnFinished(e -> gameOver());
-                    gameOverDelay.play();
-                } else {
-                    gameView.showTurnIndicator("TWOJA TURA", () -> {
-                        gameView.setActionButtonsDisabled(false);
-                        isActionInProgress = false;
-                    });
-                }
-            });
-        });
+            if (!player.isAlive()) {
+                PauseTransition gameOverDelay = new PauseTransition(Duration.seconds(1.2));
+                gameOverDelay.setOnFinished(e -> gameOver());
+                gameOverDelay.play();
+            } else {
+                gameView.showTurnIndicator("TWOJA TURA", () -> {
+                    gameView.setActionButtonsDisabled(false);
+                    isActionInProgress = false;
+                });
+            }
+        }));
         enemyTurnDelay.play();
     }
 
@@ -295,17 +291,17 @@ public class GameController {
             actualDamageTaken = player.takeDamage(enemy.getDamage());
             message = enemy.getName() + " pluje jadem! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń i zostajesz zatruty!";
             gameView.updateCombatLog(message, "enemy-log");
-            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
+            gameView.showFloatingText("-" + actualDamageTaken, "PLAYER", "DAMAGE");
 
         } else if (enemy instanceof Ogre && ((Ogre) enemy).isEnraged()) {
             actualDamageTaken = player.takeDamage(enemyDamage);
             message = "Wściekły " + enemy.getName() + " atakuje z furią! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń!";
             gameView.updateCombatLog(message, "enemy-log");
-            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
+            gameView.showFloatingText("-" + actualDamageTaken, "PLAYER", "DAMAGE");
 
         } else if (enemy instanceof Villentretenmerth) {
             actualDamageTaken = player.takeDamage(enemyDamage);
-            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
+            gameView.showFloatingText("-" + actualDamageTaken, "PLAYER", "DAMAGE");
 
             if ("FIRE_BREATH".equals(enemy.lastAttackType)) {
                 message = enemy.getName() + " zieje ogniem! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń od płomieni!";
@@ -323,7 +319,7 @@ public class GameController {
             actualDamageTaken = player.takeDamage(enemyDamage);
             message = enemy.getName() + " atakuje! Otrzymujesz " + actualDamageTaken + " pkt. obrażeń!";
             gameView.updateCombatLog(message, "enemy-log");
-            gameView.showFloatingText(String.valueOf("-"  + actualDamageTaken), "PLAYER", "DAMAGE");
+            gameView.showFloatingText("-" + actualDamageTaken, "PLAYER", "DAMAGE");
         }
     }
 
@@ -387,6 +383,5 @@ public class GameController {
 
     public Player getPlayer() { return player; }
     public Map getMap() { return map; }
-    public Room getCurrentRoom() { return currentRoom; }
-    public boolean isInCombat() { return currentEnemy != null; }
+
 }

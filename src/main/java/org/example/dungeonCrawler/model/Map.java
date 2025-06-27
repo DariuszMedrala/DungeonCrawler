@@ -19,7 +19,7 @@ public class Map {
     private static final int MIN_ROOM_SIZE = 2;
     private static final int MAX_ROOM_SIZE = 3;
     private static final int ROOM_PADDING = 2;
-    private static final double ENEMY_SPAWN_CHANCE_IN_ROOM = 0.10;
+    private static final double ENEMY_SPAWN_CHANCE_IN_ROOM = 0.20;
     private static final double ITEM_SPAWN_CHANCE_IF_NO_ENEMY = 0.12;
     private static final double ITEM_SPAWN_CHANCE_IF_ENEMY_BLOCKED = 0.20;
 
@@ -180,7 +180,7 @@ public class Map {
             return;
         }
 
-        int eventRoomsTarget = Math.max(1, (width * height) / 30);
+        int eventRoomsTarget = Math.max(1, (width * height) / 50);
         eventRoomsTarget = Math.min(eventRoomsTarget, 30);
 
         Collections.shuffle(availableRoomTiles, random);
